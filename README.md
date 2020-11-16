@@ -8,6 +8,15 @@ To use `contented`: fork the repository, add your analysis deliverables to the
 `projects` subdirectory and then pull the modified repository onto a web-server
 (details follow).
 
+## ENV
+
+Environment is managed by `pipenv`
+
+`django 3.1.0` is used, as in "Django for Beginners" book by WS Vincent.
+
+`black` is used for styling: installed it into the dev environment using
+`pipenv install black --dev --pre`
+
 ----
 
 ## Note
