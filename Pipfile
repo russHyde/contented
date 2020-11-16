@@ -8,6 +8,8 @@ django = "~=3.1.0"
 
 [dev-packages]
 black = "*"
+pylint = "*"
+pylint-django = "*"
 
 [requires]
 python_version = "3.8"
