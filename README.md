@@ -19,7 +19,12 @@ Environment is managed by `pipenv`
 
 ----
 
-## Note
+## Notes
 
 This is my first (non-tutorial) Django project. So there may be much better
 ways of achieving the project's goals.
+
+- Github complained about the first push of this project since django
+  `SECRET_KEY` was present in `config/settings.py`. Therefore, copied code from
+  superlists project into settings.py (so the `SECRET_KEY` is obtained from
+  os.environ)
