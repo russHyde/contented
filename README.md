@@ -17,6 +17,16 @@ Environment is managed by `pipenv`
 `black` is used for styling: installed it into the dev environment using
 `pipenv install black --dev --pre`
 
+`pylint` and `pylint_django` are used for linting
+
+## Tests
+
+`contented` is developed using TDD (based brazenly on the tests in TDD with
+Python by H Percival). Write functional tests first, then unit tests, then
+code.
+
+`selenium` is used for functional testing
+
 ----
 
 ## Notes
