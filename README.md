@@ -27,6 +27,9 @@ code.
 
 `selenium` is used for functional testing
 
+Use Django test client to check that which templates are used in response to a
+http request, eg, `self.client.get("/")`
+
 ----
 
 ## Notes
