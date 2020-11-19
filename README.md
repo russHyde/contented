@@ -26,6 +26,11 @@ Python by H Percival). Write functional tests first, then unit tests, then
 code.
 
 `selenium` is used for functional testing
+- Some differences between current selenium (4.0.0a7) and the one used in the
+  TDD book project (3.141.0)
+- Use `find_element(By.ID, "ID")` and `find_elements(By.TAG_NAME, "TAG-NAME")`
+  instead of `find_element_by_id("ID")` and
+  `find_elements_by_tag_name("TAG-NAME")` functions
 
 Use Django test client to check that which templates are used in response to a
 http request, eg, `self.client.get("/")`
