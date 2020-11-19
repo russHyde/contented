@@ -3,6 +3,7 @@ Functional tests for `contented` app-skeleton
 """
 
 from selenium import webdriver
+import time
 import unittest
 
 
@@ -20,11 +21,16 @@ class NewVisitorTest(unittest.TestCase):
 
         # She notices the page title and header mention data analysis projects
         self.assertIn("Data Analysis Results", self.browser.title)
-        self.fail("Finish the test!")
+        header_text = self.browser.find_element_by_tag_name("h1").text
+        self.assertIn("Data Analysis Results", header_text)
 
         # She notices there is a list of data analysis projects to look at
+        table = self.browser.find_element_by_id("project_table")
+        rows = table.find_elements_by_tag_name("tr")
+        self.assertTrue(any(row.text == "my_test_project" for row in rows))
 
         # She enters the web-page for a particular analysis project
+        self.fail("Finish the test!")
 
         # She sees there is a list of URLs: for documents, figures and
         # processed data
