@@ -29,10 +29,8 @@ class NewVisitorTest(unittest.TestCase):
         # She notices there is a list of data analysis projects to look at
         table = self.browser.find_element(By.ID, "project_table")
         rows = table.find_elements(By.TAG_NAME, "tr")
-        self.assertTrue(
-            any(row.text == "my_test_project" for row in rows),
-            "The test-project was not present in the project-table",
-        )
+        self.assertIn("my_test_project", [row.text for row in rows])
+        self.assertIn("my_other_project", [row.text for row in rows])
 
         # She enters the web-page for a particular analysis project
         self.fail("Finish the test!")
