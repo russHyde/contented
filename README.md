@@ -35,6 +35,11 @@ code.
 Use Django test client to check that which templates are used in response to a
 http request, eg, `self.client.get("/")`
 
+Note you can use `@override_settings` decorator, if you want to change the
+project data that is presented by contented during tests (plan is to use env
+variable to define the location of the data that is presented; this env var
+will be parsed by settings.py)
+
 ----
 
 ## Notes
