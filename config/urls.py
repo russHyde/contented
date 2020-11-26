@@ -20,5 +20,5 @@ from contented import views
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", views.home_page, name="home"),
-    path("projects/my_test_project", views.project_page, name="project"),
+    path("projects/<str:project_id>", views.project_page, name="project"),
 ]

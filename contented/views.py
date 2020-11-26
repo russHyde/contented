@@ -6,5 +6,5 @@ def home_page(request):
     return render(request, "home.html", {"project_ids": my_projects})
 
 
-def project_page(request):
-    return render(request, "project.html")
+def project_page(request, project_id):
+    return render(request, "project.html", {"project_id": project_id})

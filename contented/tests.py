@@ -39,17 +39,20 @@ class HomePageTest(TestCase):
 
 
 class ProjectPageTest(TestCase):
+
+    project_names = ["my_test_project", "my_other_project"]
+
     def test_uses_project_template(self):
-        project_name = "my_test_project"
+        for project_name in self.project_names:
 
-        response = self.client.get(f"/projects/{project_name}")
+            response = self.client.get(f"/projects/{project_name}")
 
-        self.assertTemplateUsed(response, "project.html")
+            self.assertTemplateUsed(response, "project.html")
 
     def test_project_page_contains_project_name(self):
-        project_name = "my_test_project"
+        for project_name in self.project_names:
 
-        response = self.client.get(f"/projects/{project_name}")
-        response_text = response.content.decode("utf8")
+            response = self.client.get(f"/projects/{project_name}")
+            response_text = response.content.decode("utf8")
 
-        self.assertIn(project_name, response_text)
+            self.assertIn(project_name, response_text)
