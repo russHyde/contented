@@ -16,13 +16,40 @@ class HomePageTest(TestCase):
         """
 
         path_to_projects = "dummy_projects"
+        project_names = os.listdir(path_to_projects)
+
         response = self.client.get("/")
         response_text = response.content.decode("utf8")
-
-        project_names = os.listdir(path_to_projects)
 
         self.assertTrue(
             all([proj in response_text for proj in project_names]),
             """A project-name was present in the project-directory, but absent
             from the home-page""",
         )
+
+    def test_home_page_contains_hyperlinks_to_projects(self):
+        path_to_projects = "dummy_projects"
+        project_names = os.listdir(path_to_projects)
+        hyperlink_stub = """<a href="/projects/{proj}">{proj}</a>"""
+
+        response = self.client.get("/")
+
+        for proj in project_names:
+            self.assertContains(response, hyperlink_stub.format(proj=proj), html=True)
+
+
+class ProjectPageTest(TestCase):
+    def test_uses_project_template(self):
+        project_name = "my_test_project"
+
+        response = self.client.get(f"/projects/{project_name}")
+
+        self.assertTemplateUsed(response, "project.html")
+
+    def test_project_page_contains_project_name(self):
+        project_name = "my_test_project"
+
+        response = self.client.get(f"/projects/{project_name}")
+        response_text = response.content.decode("utf8")
+
+        self.assertIn(project_name, response_text)

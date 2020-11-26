@@ -6,7 +6,7 @@
     <h1>Data Analysis Results</h1>
     <table id="project_table">
       {% for proj in project_ids %}
-      <tr><td>{{ proj }}</td></tr>
+      <tr><td><a href="/projects/{{ proj }}">{{ proj }}</a></td></tr>
       {% endfor %}
     </table>
   </body>
