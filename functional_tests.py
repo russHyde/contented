@@ -32,11 +32,17 @@ class NewVisitorTest(unittest.TestCase):
         self.assertIn("my_test_project", [row.text for row in rows])
         self.assertIn("my_other_project", [row.text for row in rows])
 
-        # She enters the web-page for a particular analysis project
-        self.fail("Finish the test!")
+        # She enters the web-page for a particular analysis project and sees
+        # the name of the project in the title
+        project_link = self.browser.find_element(By.LINK_TEXT, "my_test_project")
+        project_link.click()
+        self.assertIn("Data Analysis Results: my_test_project", self.browser.title)
+        header_text = self.browser.find_element(By.TAG_NAME, "h1").text
+        self.assertIn("Data Analysis Results: my_test_project", header_text)
 
         # She sees there is a list of URLs: for documents, figures and
         # processed data
+        self.fail("Finish the test!")
 
         # She opens the webpage for an analysis report
 
