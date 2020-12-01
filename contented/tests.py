@@ -1,5 +1,6 @@
 import os
 from django.test import TestCase
+from pathlib import Path
 
 
 class HomePageTest(TestCase):
@@ -40,7 +41,18 @@ class HomePageTest(TestCase):
 
 class ProjectPageTest(TestCase):
 
+    path_to_projects = Path("dummy_projects")
     project_names = ["my_test_project", "my_other_project"]
+
+    @staticmethod
+    def get_relative_results_files(project_path):
+        result_files = []
+        for root, _, files in os.walk(project_path):
+            relative_root = Path(root).relative_to(project_path)
+            for my_file in files:
+                result_files.append(str(relative_root / my_file))
+
+        return result_files
 
     def test_uses_project_template(self):
         for project_name in self.project_names:
@@ -56,3 +68,28 @@ class ProjectPageTest(TestCase):
             response_text = response.content.decode("utf8")
 
             self.assertIn(project_name, response_text)
+
+    def test_project_page_contains_list_of_results(self):
+        """
+        Every file that is in the project-directory for a given project should
+        be mentioned on the project-page for that project
+        """
+
+        # TODO: use all project_names
+        for project_name in self.project_names[0]:
+            # GIVEN: a project name, and all the results files for that project
+            # that are stored in the projects directory
+            path_to_project = self.path_to_projects / project_name
+            results_files = self.get_relative_results_files(path_to_project)
+
+            # WHEN: the user opens that project's project-page
+            response = self.client.get(f"/projects/{project_name}")
+            response_text = response.content.decode("utf8")
+
+            # THEN: all results-files for that project should be mentioned on
+            # the project-page
+            for file_name in results_files:
+                self.assertIn(file_name, response_text)
+
+    def test_project_page_contains_hyperlinks_to_results(self):
+        pass
