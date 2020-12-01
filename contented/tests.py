@@ -13,6 +13,7 @@ def get_relative_results_files(project_path):
 
     return result_files
 
+
 class HomePageTest(TestCase):
 
     path_to_projects = Path("dummy_projects")
@@ -137,8 +138,11 @@ class ResultsPageTest(TestCase):
         WHEN: the user requests an existing file from a project
         THEN: the file should open in the browser
         """
-        for file_name in ["abc.csv", "README.md", "my_subfolder/def.tsv"]:
-            url = f"/projects/my_test_project/{file_name}"
-            response = self.client.get(url)
+        for project_id in self.project_ids:
+            files = get_relative_results_files(self.path_to_projects / project_id)
 
-            self.assertEqual(response.status_code, 200, f"Couldn't open {url}")
+            for file_name in files:
+                url = f"/projects/{project_id}/{file_name}"
+                response = self.client.get(url)
+
+                self.assertEqual(response.status_code, 200, f"Couldn't open {url}")

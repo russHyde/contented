@@ -21,5 +21,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", views.home_page, name="home"),
     path("projects/<str:project_id>", views.project_page, name="project"),
-    path("projects/my_test_project/<path:file_name>", views.results_page, name="results"),
+    path(
+        "projects/<str:project_id>/<path:file_name>", views.results_page, name="results"
+    ),
 ]
