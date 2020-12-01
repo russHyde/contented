@@ -2,7 +2,6 @@
 Functional tests for `contented` app-skeleton
 """
 
-import time
 import unittest
 
 from selenium import webdriver
@@ -49,7 +48,9 @@ class NewVisitorTest(unittest.TestCase):
         self.assertIn("my_subfolder/def.tsv", [row.text for row in results_rows])
 
         # She opens the webpage for an analysis report
-        self.fail("Finish the test!")
+        result_abc_link = self.browser.find_element(By.LINK_TEXT, "abc.csv")
+        result_abc_link.click()
+        self.assertIn("abc,123,345", self.browser.page_source)
 
         # Satisfied she goes back to sleep
 
