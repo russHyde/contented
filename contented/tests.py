@@ -91,4 +91,25 @@ class ProjectPageTest(TestCase):
                 self.assertIn(file_name, response_text)
 
     def test_project_page_contains_hyperlinks_to_results(self):
-        pass
+        """
+        Every file that is in the project-directory for a given project should
+        have a hyperlink on the project-page
+        """
+        for project_name in self.project_names:
+            # GIVEN: a project name, and all the results files for that project
+            # that are stored in the projects directory
+            path_to_project = self.path_to_projects / project_name
+            results_files = self.get_relative_results_files(path_to_project)
+
+            # WHEN: the user opens that project's project-page
+            response = self.client.get(f"/projects/{project_name}")
+
+            # THEN: there should be a hyperlink for each results-file from the
+            # project-page
+            hyperlink_stub = """<a href="/projects/{proj}/{file}">{file}</a>"""
+            for my_file in results_files:
+                self.assertContains(
+                    response,
+                    hyperlink_stub.format(proj=project_name, file=my_file),
+                    html=True,
+                )

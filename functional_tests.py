@@ -44,9 +44,9 @@ class NewVisitorTest(unittest.TestCase):
         # processed data
         results_table = self.browser.find_element(By.ID, "results_table")
         results_rows = results_table.find_elements(By.TAG_NAME, "tr")
-        self.assertIn("README.md", [row.text for row in rows])
-        self.assertIn("abc.csv", [row.text for row in rows])
-        self.assertIn("my_subfolder/def.tsv", [row.text for row in rows])
+        self.assertIn("README.md", [row.text for row in results_rows])
+        self.assertIn("abc.csv", [row.text for row in results_rows])
+        self.assertIn("my_subfolder/def.tsv", [row.text for row in results_rows])
 
         # She opens the webpage for an analysis report
         self.fail("Finish the test!")
