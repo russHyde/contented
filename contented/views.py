@@ -1,3 +1,5 @@
+import os
+from pathlib import Path
 from django.shortcuts import render
 
 
@@ -7,4 +9,37 @@ def home_page(request):
 
 
 def project_page(request, project_id):
-    return render(request, "project.html", {"project_id": project_id})
+    project_path = Path("dummy_projects") / project_id
+    project_files = get_relative_results_files(project_path)
+
+    return render(
+        request,
+        "project.html",
+        {"project_id": project_id, "results_files": [str(f) for f in project_files]},
+    )
+
+
+# Helpers
+
+
+def get_relative_results_files(project_path):
+    """
+    For a given directory, `project_path`, return a list of `Path`s for all the
+    files in or below that directory, relative to `project_path`
+
+    That is, with,
+    a/
+      b/temp.txt
+      c.tsv
+
+    get_relative_results_path(Path("a"))
+    should return [Path("b/temp.txt"), Path("c.tsv")]
+    """
+    result_files = []
+
+    for root, _, files in os.walk(project_path):
+        relative_root = Path(root).relative_to(project_path)
+        for my_file in files:
+            result_files.append(relative_root / my_file)
+
+    return result_files

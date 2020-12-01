@@ -1,6 +1,6 @@
 import os
-from django.test import TestCase
 from pathlib import Path
+from django.test import TestCase
 
 
 class HomePageTest(TestCase):
@@ -75,8 +75,7 @@ class ProjectPageTest(TestCase):
         be mentioned on the project-page for that project
         """
 
-        # TODO: use all project_names
-        for project_name in self.project_names[0]:
+        for project_name in self.project_names:
             # GIVEN: a project name, and all the results files for that project
             # that are stored in the projects directory
             path_to_project = self.path_to_projects / project_name
