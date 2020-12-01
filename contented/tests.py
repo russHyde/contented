@@ -1,10 +1,19 @@
 import os
 from pathlib import Path
+from django.urls import reverse
 from django.test import TestCase
 
 
 class HomePageTest(TestCase):
+
+    path_to_projects = Path("dummy_projects")
+    project_names = os.listdir(path_to_projects)
+
     def test_uses_home_template(self):
+        response = self.client.get(reverse("home"))
+        self.assertTemplateUsed(response, "home.html")
+
+    def test_alternative_url_specification_for_homepage(self):
         response = self.client.get("/")
         self.assertTemplateUsed(response, "home.html")
 
@@ -16,33 +25,28 @@ class HomePageTest(TestCase):
         page (ie, the name of the project should be visible)
         """
 
-        path_to_projects = "dummy_projects"
-        project_names = os.listdir(path_to_projects)
-
-        response = self.client.get("/")
+        response = self.client.get(reverse("home"))
         response_text = response.content.decode("utf8")
 
         self.assertTrue(
-            all([proj in response_text for proj in project_names]),
+            all([proj in response_text for proj in self.project_names]),
             """A project-name was present in the project-directory, but absent
             from the home-page""",
         )
 
     def test_home_page_contains_hyperlinks_to_projects(self):
-        path_to_projects = "dummy_projects"
-        project_names = os.listdir(path_to_projects)
         hyperlink_stub = """<a href="/projects/{proj}">{proj}</a>"""
 
-        response = self.client.get("/")
+        response = self.client.get(reverse("home"))
 
-        for proj in project_names:
+        for proj in self.project_names:
             self.assertContains(response, hyperlink_stub.format(proj=proj), html=True)
 
 
 class ProjectPageTest(TestCase):
 
     path_to_projects = Path("dummy_projects")
-    project_names = ["my_test_project", "my_other_project"]
+    project_names = os.listdir(path_to_projects)
 
     @staticmethod
     def get_relative_results_files(project_path):
