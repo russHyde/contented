@@ -4,6 +4,15 @@ from django.urls import reverse
 from django.test import TestCase
 
 
+def get_relative_results_files(project_path):
+    result_files = []
+    for root, _, files in os.walk(project_path):
+        relative_root = Path(root).relative_to(project_path)
+        for my_file in files:
+            result_files.append(str(relative_root / my_file))
+
+    return result_files
+
 class HomePageTest(TestCase):
 
     path_to_projects = Path("dummy_projects")
@@ -58,16 +67,6 @@ class ProjectPageTest(TestCase):
     path_to_projects = Path("dummy_projects")
     project_ids = os.listdir(path_to_projects)
 
-    @staticmethod
-    def get_relative_results_files(project_path):
-        result_files = []
-        for root, _, files in os.walk(project_path):
-            relative_root = Path(root).relative_to(project_path)
-            for my_file in files:
-                result_files.append(str(relative_root / my_file))
-
-        return result_files
-
     def test_uses_project_template(self):
         for project_id in self.project_ids:
 
@@ -93,7 +92,7 @@ class ProjectPageTest(TestCase):
             # GIVEN: a project name, and all the results files for that project
             # that are stored in the projects directory
             path_to_project = self.path_to_projects / project_id
-            results_files = self.get_relative_results_files(path_to_project)
+            results_files = get_relative_results_files(path_to_project)
 
             # WHEN: the user opens that project's project-page
             response = self.client.get(f"/projects/{project_id}")
@@ -113,7 +112,7 @@ class ProjectPageTest(TestCase):
             # GIVEN: a project name, and all the results files for that project
             # that are stored in the projects directory
             path_to_project = self.path_to_projects / project_id
-            results_files = self.get_relative_results_files(path_to_project)
+            results_files = get_relative_results_files(path_to_project)
 
             # WHEN: the user opens that project's project-page
             response = self.client.get(f"/projects/{project_id}")
