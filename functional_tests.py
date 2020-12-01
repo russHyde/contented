@@ -42,9 +42,14 @@ class NewVisitorTest(unittest.TestCase):
 
         # She sees there is a list of URLs: for documents, figures and
         # processed data
-        self.fail("Finish the test!")
+        results_table = self.browser.find_element(By.ID, "results_table")
+        results_rows = results_table.find_elements(By.TAG_NAME, "tr")
+        self.assertIn("README.md", [row.text for row in rows])
+        self.assertIn("abc.csv", [row.text for row in rows])
+        self.assertIn("my_subfolder/def.tsv", [row.text for row in rows])
 
         # She opens the webpage for an analysis report
+        self.fail("Finish the test!")
 
         # Satisfied she goes back to sleep
 
