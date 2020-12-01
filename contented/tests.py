@@ -133,6 +133,12 @@ class ResultsPageTest(TestCase):
     project_ids = os.listdir(path_to_projects)
 
     def test_results_page_opens(self):
-        response = self.client.get(f"/projects/my_test_project/abc.csv")
+        """
+        WHEN: the user requests an existing file from a project
+        THEN: the file should open in the browser
+        """
+        for file_name in ["abc.csv", "README.md", "my_subfolder/def.tsv"]:
+            url = f"/projects/my_test_project/{file_name}"
+            response = self.client.get(url)
 
-        self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.status_code, 200, f"Couldn't open {url}")

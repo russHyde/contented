@@ -20,7 +20,7 @@ def project_page(request, project_id):
     )
 
 
-def results_page(request):
+def results_page(request, file_name):
     """
     Selects an appropriate report / results file to display in the browser
     based on users-selection.
