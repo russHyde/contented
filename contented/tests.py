@@ -48,7 +48,9 @@ class HomePageTest(TestCase):
         response = self.client.get(reverse("home"))
 
         for project_id in self.project_ids:
-            self.assertContains(response, hyperlink_stub.format(proj=project_id), html=True)
+            self.assertContains(
+                response, hyperlink_stub.format(proj=project_id), html=True
+            )
 
 
 class ProjectPageTest(TestCase):
@@ -125,3 +127,13 @@ class ProjectPageTest(TestCase):
                     hyperlink_stub.format(proj=project_id, file=my_file),
                     html=True,
                 )
+
+
+class ResultsPageTest(TestCase):
+    path_to_projects = Path("dummy_projects")
+    project_ids = os.listdir(path_to_projects)
+
+    def test_results_page_opens(self):
+        response = self.client.get(f"/projects/my_test_project/abc.csv")
+
+        self.assertEqual(response.status_code, 200)

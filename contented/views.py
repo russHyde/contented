@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from django.shortcuts import render
+from django.http import HttpResponse
 
 
 def home_page(request):
@@ -17,6 +18,14 @@ def project_page(request, project_id):
         "project.html",
         {"project_id": project_id, "results_files": [str(f) for f in project_files]},
     )
+
+
+def results_page(request):
+    """
+    Selects an appropriate report / results file to display in the browser
+    based on users-selection.
+    """
+    return HttpResponse()
 
 
 # Helpers
