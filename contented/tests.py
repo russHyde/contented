@@ -92,15 +92,21 @@ class ProjectPageTest(TestCase):
     to a specific analysis project
     """
 
-    path_to_projects = Path("dummy_projects")
-    project_ids = os.listdir(path_to_projects)
+    def setUp(self):
+        self.project_collections = {
+            collection_id: {
+                "path": Path(collection_id),
+                "project_ids": os.listdir(Path(collection_id)),
+            }
+            for collection_id in ["dummy_projects", "dummy_projects2"]
+        }
 
     def test_uses_project_template(self):
         """
         WHEN: the user requests the webpage for a specific project-ID
         THEN: the project-page template should be used
         """
-        for project_id in self.project_ids:
+        for project_id in self.project_collections["dummy_projects"]["project_ids"]:
 
             response = self.client.get(f"/projects/{project_id}")
 
@@ -111,7 +117,7 @@ class ProjectPageTest(TestCase):
         WHEN: the user requests a webpage for a specific project-ID
         THEN: the project-ID should appear in the title of the webpage
         """
-        for project_id in self.project_ids:
+        for project_id in self.project_collections["dummy_projects"]["project_ids"]:
 
             response = self.client.get(f"/projects/{project_id}")
             response_text = response.content.decode("utf8")
@@ -124,10 +130,12 @@ class ProjectPageTest(TestCase):
         be mentioned on the project-page for that project
         """
 
-        for project_id in self.project_ids:
+        for project_id in self.project_collections["dummy_projects"]["project_ids"]:
             # GIVEN: a project name, and all the results files for that project
             # that are stored in the projects directory
-            path_to_project = self.path_to_projects / project_id
+            path_to_project = (
+                self.project_collections["dummy_projects"]["path"] / project_id
+            )
             results_files = get_relative_results_files(path_to_project)
 
             # WHEN: the user opens that project's project-page
@@ -144,10 +152,12 @@ class ProjectPageTest(TestCase):
         Every file that is in the project-directory for a given project should
         have a hyperlink on the project-page
         """
-        for project_id in self.project_ids:
+        for project_id in self.project_collections["dummy_projects"]["project_ids"]:
             # GIVEN: a project name, and all the results files for that project
             # that are stored in the projects directory
-            path_to_project = self.path_to_projects / project_id
+            path_to_project = (
+                self.project_collections["dummy_projects"]["path"] / project_id
+            )
             results_files = get_relative_results_files(path_to_project)
 
             # WHEN: the user opens that project's project-page
