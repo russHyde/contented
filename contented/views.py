@@ -12,7 +12,8 @@ def home_page(request):
 
 
 def project_page(request, project_id):
-    project_path = Path("dummy_projects") / project_id
+    project_collection = settings.PROJECTS_DIR
+    project_path = project_collection / project_id
     project_files = get_relative_results_files(project_path)
 
     return render(

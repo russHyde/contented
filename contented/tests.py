@@ -106,72 +106,80 @@ class ProjectPageTest(TestCase):
         WHEN: the user requests the webpage for a specific project-ID
         THEN: the project-page template should be used
         """
-        for project_id in self.project_collections["dummy_projects"]["project_ids"]:
+        for _, details in self.project_collections.items():
+            with self.settings(PROJECTS_DIR=details["path"]):
+                for project_id in details["project_ids"]:
 
-            response = self.client.get(f"/projects/{project_id}")
+                    response = self.client.get(f"/projects/{project_id}")
 
-            self.assertTemplateUsed(response, "project.html")
+                    self.assertTemplateUsed(response, "project.html")
 
     def test_project_page_contains_project_id(self):
         """
         WHEN: the user requests a webpage for a specific project-ID
         THEN: the project-ID should appear in the title of the webpage
         """
-        for project_id in self.project_collections["dummy_projects"]["project_ids"]:
+        for _, details in self.project_collections.items():
+            with self.settings(PROJECTS_DIR=details["path"]):
+                for project_id in details["project_ids"]:
 
-            response = self.client.get(f"/projects/{project_id}")
-            response_text = response.content.decode("utf8")
+                    response = self.client.get(f"/projects/{project_id}")
+                    response_text = response.content.decode("utf8")
 
-            self.assertIn(project_id, response_text)
+                    self.assertIn(project_id, response_text)
 
     def test_project_page_contains_list_of_results(self):
         """
         Every file that is in the project-directory for a given project should
         be mentioned on the project-page for that project
         """
+        for _, details in self.project_collections.items():
+            with self.settings(PROJECTS_DIR=details["path"]):
+                for project_id in details["project_ids"]:
+                    # GIVEN: a project name, and all the results files for that
+                    # project that are stored in the projects directory
+                    path_to_project = details["path"] / project_id
+                    results_files = get_relative_results_files(path_to_project)
 
-        for project_id in self.project_collections["dummy_projects"]["project_ids"]:
-            # GIVEN: a project name, and all the results files for that project
-            # that are stored in the projects directory
-            path_to_project = (
-                self.project_collections["dummy_projects"]["path"] / project_id
-            )
-            results_files = get_relative_results_files(path_to_project)
+                    # WHEN: the user opens that project's project-page
+                    response = self.client.get(f"/projects/{project_id}")
+                    response_text = response.content.decode("utf8")
 
-            # WHEN: the user opens that project's project-page
-            response = self.client.get(f"/projects/{project_id}")
-            response_text = response.content.decode("utf8")
-
-            # THEN: all results-files for that project should be mentioned on
-            # the project-page
-            for file_name in results_files:
-                self.assertIn(file_name, response_text)
+                    # THEN: all results-files for that project should be
+                    # mentioned on the project-page
+                    for file_name in results_files:
+                        self.assertIn(file_name, response_text)
 
     def test_project_page_contains_hyperlinks_to_results(self):
         """
         Every file that is in the project-directory for a given project should
         have a hyperlink on the project-page
         """
-        for project_id in self.project_collections["dummy_projects"]["project_ids"]:
-            # GIVEN: a project name, and all the results files for that project
-            # that are stored in the projects directory
-            path_to_project = (
-                self.project_collections["dummy_projects"]["path"] / project_id
-            )
-            results_files = get_relative_results_files(path_to_project)
+        for _, details in self.project_collections.items():
+            with self.settings(PROJECTS_DIR=details["path"]):
+                for project_id in details["project_ids"]:
+                    # GIVEN: a project name, and all the results files for that
+                    # project that are stored in the projects directory
+                    path_to_project = details["path"] / project_id
+                    results_files = get_relative_results_files(path_to_project)
 
-            # WHEN: the user opens that project's project-page
-            response = self.client.get(f"/projects/{project_id}")
+                    # WHEN: the user opens that project's project-page
+                    response = self.client.get(f"/projects/{project_id}")
 
-            # THEN: there should be a hyperlink for each results-file from the
-            # project-page
-            hyperlink_stub = """<a href="/projects/{proj}/{file}">{file}</a>"""
-            for my_file in results_files:
-                self.assertContains(
-                    response,
-                    hyperlink_stub.format(proj=project_id, file=my_file),
-                    html=True,
-                )
+                    # THEN: there should be a hyperlink for each results-file
+                    # from the project-page
+                    hyperlink_stub = """<a href="/projects/{proj}/{file}">{file}</a>"""
+                    for my_file in results_files:
+                        self.assertContains(
+                            response,
+                            hyperlink_stub.format(proj=project_id, file=my_file),
+                            html=True,
+                        )
+
+    # def test_nonexisting_projects_throw_404(self):
+    #    response = self.client.get(f"/projects/not-a-project")
+    #
+    #    self.assertEqual(response.status_code, 404, f"Non-existing project")
 
 
 class ResultsPageTest(TestCase):
