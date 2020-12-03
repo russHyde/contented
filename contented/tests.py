@@ -169,3 +169,28 @@ class ResultsPageTest(TestCase):
                 response = self.client.get(url)
 
                 self.assertEqual(response.status_code, 200, f"Couldn't open {url}")
+
+    def test_results_page_content_matches_file_content(self):
+        """
+        GIVEN: a file `<projects_dir>/<project_id>/<some_file>` exists
+
+        WHEN: the user requests to see the URL corresponding to that file
+        (/projects/<project_id>/<some_file>).
+
+        THEN: the contents of the file should open in the browser and be
+        identical to the original contents.
+        """
+        for project_id in self.project_ids:
+            files = self.file_paths[project_id]
+
+            for file_name in files:
+                file_path = self.path_to_projects / project_id / file_name
+                url = f"/projects/{project_id}/{file_name}"
+
+                file_text = ""
+                with open(file_path, mode="r") as file_handle:
+                    file_text = file_handle.read()
+                response = self.client.get(url)
+                response_text = response.content.decode("utf8")
+
+                self.assertEqual(response_text, file_text)

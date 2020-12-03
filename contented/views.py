@@ -25,7 +25,12 @@ def results_page(request, project_id, file_name):
     Selects an appropriate report / results file to display in the browser
     based on users-selection.
     """
-    return HttpResponse()
+    file_path = Path("dummy_projects") / project_id / file_name
+    file_contents = ""
+    with open(file_path, "r") as file_object:
+        file_contents = file_object.read()
+
+    return HttpResponse(file_contents)
 
 
 # Helpers
