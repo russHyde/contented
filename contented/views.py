@@ -30,7 +30,7 @@ def results_page(request, project_id, file_name):
     with open(file_path, "r") as file_object:
         file_contents = file_object.read()
 
-    return HttpResponse(file_contents)
+    return HttpResponse(file_contents, content_type="text/plain")
 
 
 # Helpers
