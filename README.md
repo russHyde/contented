@@ -19,6 +19,14 @@ Environment is managed by `pipenv`
 
 `pylint` and `pylint_django` are used for linting
 
+## CONFIG
+
+A directory is specified by the user (in `config/settings.py`) that contains
+all projects that should be made visible: `PROJECTS_DIR`. The default value of
+`PROJECTS_DIR` points to a set of projects that are used during testing.
+
+PLAN: make `PROJECTS_DIR` configurable using environment variables
+
 ## Tests
 
 `contented` is developed using TDD (based brazenly on the tests in TDD with

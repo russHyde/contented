@@ -122,3 +122,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = "/static/"
+
+# The set of projects, for which results should be released, are defined in
+# this setting
+
+PROJECTS_DIR = Path("dummy_projects")

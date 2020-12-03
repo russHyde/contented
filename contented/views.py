@@ -1,11 +1,13 @@
 import os
 from pathlib import Path
+from django.conf import settings
 from django.shortcuts import render
 from django.http import HttpResponse
 
 
 def home_page(request):
-    my_projects = ["my_test_project", "my_other_project"]
+    project_collection = settings.PROJECTS_DIR
+    my_projects = os.listdir(project_collection)
     return render(request, "home.html", {"project_ids": my_projects})
 
 

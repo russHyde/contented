@@ -15,17 +15,24 @@ def get_relative_results_files(project_path):
 
 
 class HomePageTest(TestCase):
-
-    path_to_projects = Path("dummy_projects")
-    project_ids = os.listdir(path_to_projects)
+    def setUp(self):
+        self.project_collections = {
+            collection_id: {
+                "path": Path(collection_id),
+                "project_ids": os.listdir(Path(collection_id)),
+            }
+            for collection_id in ["dummy_projects", "dummy_projects2"]
+        }
 
     def test_uses_home_template(self):
         """
         WHEN: the user requests the home page (using `reverse("home")`)
         THEN: the home-page template is used
         """
-        response = self.client.get(reverse("home"))
-        self.assertTemplateUsed(response, "home.html")
+        for _, details in self.project_collections.items():
+            with self.settings(PROJECTS_DIR=details["path"]):
+                response = self.client.get(reverse("home"))
+                self.assertTemplateUsed(response, "home.html")
 
     def test_alternative_url_specification_for_homepage(self):
         """
@@ -43,14 +50,22 @@ class HomePageTest(TestCase):
         page (ie, the name of the project should be visible)
         """
 
-        response = self.client.get(reverse("home"))
-        response_text = response.content.decode("utf8")
+        for _, details in self.project_collections.items():
+            with self.settings(PROJECTS_DIR=details["path"]):
 
-        self.assertTrue(
-            all([project_id in response_text for project_id in self.project_ids]),
-            """A project-name was present in the project-directory, but absent
-            from the home-page""",
-        )
+                response = self.client.get(reverse("home"))
+                response_text = response.content.decode("utf8")
+
+                self.assertTrue(
+                    all(
+                        [
+                            project_id in response_text
+                            for project_id in details["project_ids"]
+                        ]
+                    ),
+                    """A project-name was present in the project-directory, but
+                    absent from the home-page""",
+                )
 
     def test_home_page_contains_hyperlinks_to_projects(self):
         """
@@ -60,12 +75,15 @@ class HomePageTest(TestCase):
         """
         hyperlink_stub = """<a href="/projects/{proj}">{proj}</a>"""
 
-        response = self.client.get(reverse("home"))
+        for _, details in self.project_collections.items():
+            with self.settings(PROJECTS_DIR=details["path"]):
 
-        for project_id in self.project_ids:
-            self.assertContains(
-                response, hyperlink_stub.format(proj=project_id), html=True
-            )
+                response = self.client.get(reverse("home"))
+
+                for project_id in details["project_ids"]:
+                    self.assertContains(
+                        response, hyperlink_stub.format(proj=project_id), html=True
+                    )
 
 
 class ProjectPageTest(TestCase):
