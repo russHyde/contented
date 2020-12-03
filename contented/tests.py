@@ -14,13 +14,19 @@ def get_relative_results_files(project_path):
     return result_files
 
 
+def get_collection_details(collection_id):
+    path = Path(collection_id)
+    project_ids = os.listdir(path)
+    file_paths = {
+        project_id: get_relative_results_files(path / project_id)
+        for project_id in project_ids
+    }
+    return {"path": path, "project_ids": project_ids, "file_paths": file_paths}
+
 class HomePageTest(TestCase):
     def setUp(self):
         self.project_collections = {
-            collection_id: {
-                "path": Path(collection_id),
-                "project_ids": os.listdir(Path(collection_id)),
-            }
+            collection_id: get_collection_details(collection_id)
             for collection_id in ["dummy_projects", "dummy_projects2"]
         }
 
@@ -94,10 +100,7 @@ class ProjectPageTest(TestCase):
 
     def setUp(self):
         self.project_collections = {
-            collection_id: {
-                "path": Path(collection_id),
-                "project_ids": os.listdir(Path(collection_id)),
-            }
+            collection_id: get_collection_details(collection_id)
             for collection_id in ["dummy_projects", "dummy_projects2"]
         }
 
@@ -182,14 +185,12 @@ class ProjectPageTest(TestCase):
     #    self.assertEqual(response.status_code, 404, f"Non-existing project")
 
 
-class ResultsPageTest(TestCase):
 
+class ResultsPageTest(TestCase):
     def setUp(self):
-        self.path_to_projects = Path("dummy_projects")
-        self.project_ids = os.listdir(self.path_to_projects)
-        self.file_paths = {
-            project_id : get_relative_results_files(self.path_to_projects / project_id)
-            for project_id in self.project_ids
+        self.project_collections = {
+            collection_id: get_collection_details(collection_id)
+            for collection_id in ["dummy_projects", "dummy_projects2"]
         }
 
     def test_results_page_opens(self):
@@ -197,8 +198,9 @@ class ResultsPageTest(TestCase):
         WHEN: the user requests an existing file from a project
         THEN: the file should open in the browser
         """
-        for project_id in self.project_ids:
-            files = self.file_paths[project_id]
+        collection_id = "dummy_projects"
+        details = self.project_collections[collection_id]
+        for project_id, files in details["file_paths"].items():
 
             for file_name in files:
                 url = f"/projects/{project_id}/{file_name}"
@@ -216,11 +218,13 @@ class ResultsPageTest(TestCase):
         THEN: the contents of the file should open in the browser and be
         identical to the original contents.
         """
-        for project_id in self.project_ids:
-            files = self.file_paths[project_id]
+        collection_id = "dummy_projects"
+        details = self.project_collections[collection_id]
+
+        for project_id, files in details["file_paths"].items():
 
             for file_name in files:
-                file_path = self.path_to_projects / project_id / file_name
+                file_path = details["path"] / project_id / file_name
                 url = f"/projects/{project_id}/{file_name}"
 
                 file_text = ""
