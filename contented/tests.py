@@ -23,6 +23,7 @@ def get_collection_details(collection_id):
     }
     return {"path": path, "project_ids": project_ids, "file_paths": file_paths}
 
+
 class HomePageTest(TestCase):
     def setUp(self):
         self.project_collections = {
@@ -185,7 +186,6 @@ class ProjectPageTest(TestCase):
     #    self.assertEqual(response.status_code, 404, f"Non-existing project")
 
 
-
 class ResultsPageTest(TestCase):
     def setUp(self):
         self.project_collections = {
@@ -198,15 +198,17 @@ class ResultsPageTest(TestCase):
         WHEN: the user requests an existing file from a project
         THEN: the file should open in the browser
         """
-        collection_id = "dummy_projects"
-        details = self.project_collections[collection_id]
-        for project_id, files in details["file_paths"].items():
+        for _, details in self.project_collections.items():
+            with self.settings(PROJECTS_DIR=details["path"]):
+                for project_id, files in details["file_paths"].items():
 
-            for file_name in files:
-                url = f"/projects/{project_id}/{file_name}"
-                response = self.client.get(url)
+                    for file_name in files:
+                        url = f"/projects/{project_id}/{file_name}"
+                        response = self.client.get(url)
 
-                self.assertEqual(response.status_code, 200, f"Couldn't open {url}")
+                        self.assertEqual(
+                            response.status_code, 200, f"Couldn't open {url}"
+                        )
 
     def test_results_page_content_matches_file_content(self):
         """
@@ -218,19 +220,18 @@ class ResultsPageTest(TestCase):
         THEN: the contents of the file should open in the browser and be
         identical to the original contents.
         """
-        collection_id = "dummy_projects"
-        details = self.project_collections[collection_id]
+        for _, details in self.project_collections.items():
+            with self.settings(PROJECTS_DIR=details["path"]):
+                for project_id, files in details["file_paths"].items():
 
-        for project_id, files in details["file_paths"].items():
+                    for file_name in files:
+                        file_path = details["path"] / project_id / file_name
+                        url = f"/projects/{project_id}/{file_name}"
 
-            for file_name in files:
-                file_path = details["path"] / project_id / file_name
-                url = f"/projects/{project_id}/{file_name}"
+                        file_text = ""
+                        with open(file_path, mode="r") as file_object:
+                            file_text = file_object.read()
+                        response = self.client.get(url)
+                        response_text = response.content.decode("utf8")
 
-                file_text = ""
-                with open(file_path, mode="r") as file_handle:
-                    file_text = file_handle.read()
-                response = self.client.get(url)
-                response_text = response.content.decode("utf8")
-
-                self.assertEqual(response_text, file_text)
+                        self.assertEqual(response_text, file_text)
