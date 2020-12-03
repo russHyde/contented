@@ -53,6 +53,11 @@ class HomePageTest(TestCase):
         )
 
     def test_home_page_contains_hyperlinks_to_projects(self):
+        """
+        WHEN: the user opens the home-page
+        THEN: a list of projects is visible and each one has an associated
+        hyperlink
+        """
         hyperlink_stub = """<a href="/projects/{proj}">{proj}</a>"""
 
         response = self.client.get(reverse("home"))
@@ -64,11 +69,19 @@ class HomePageTest(TestCase):
 
 
 class ProjectPageTest(TestCase):
+    """
+    The project-page is a webpage that contains info about all files connected
+    to a specific analysis project
+    """
 
     path_to_projects = Path("dummy_projects")
     project_ids = os.listdir(path_to_projects)
 
     def test_uses_project_template(self):
+        """
+        WHEN: the user requests the webpage for a specific project-ID
+        THEN: the project-page template should be used
+        """
         for project_id in self.project_ids:
 
             response = self.client.get(f"/projects/{project_id}")
@@ -76,6 +89,10 @@ class ProjectPageTest(TestCase):
             self.assertTemplateUsed(response, "project.html")
 
     def test_project_page_contains_project_id(self):
+        """
+        WHEN: the user requests a webpage for a specific project-ID
+        THEN: the project-ID should appear in the title of the webpage
+        """
         for project_id in self.project_ids:
 
             response = self.client.get(f"/projects/{project_id}")
