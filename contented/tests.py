@@ -147,8 +147,14 @@ class ProjectPageTest(TestCase):
 
 
 class ResultsPageTest(TestCase):
-    path_to_projects = Path("dummy_projects")
-    project_ids = os.listdir(path_to_projects)
+
+    def setUp(self):
+        self.path_to_projects = Path("dummy_projects")
+        self.project_ids = os.listdir(self.path_to_projects)
+        self.file_paths = {
+            project_id : get_relative_results_files(self.path_to_projects / project_id)
+            for project_id in self.project_ids
+        }
 
     def test_results_page_opens(self):
         """
@@ -156,7 +162,7 @@ class ResultsPageTest(TestCase):
         THEN: the file should open in the browser
         """
         for project_id in self.project_ids:
-            files = get_relative_results_files(self.path_to_projects / project_id)
+            files = self.file_paths[project_id]
 
             for file_name in files:
                 url = f"/projects/{project_id}/{file_name}"
