@@ -2,13 +2,17 @@
 Functional tests for `contented` app-skeleton
 """
 
-import unittest
-
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
 
-class NewVisitorTest(unittest.TestCase):
+class ProjectVisibilityTest(StaticLiveServerTestCase):
+    """
+    Ensure user can see projects that they are permitted to see; that they can
+    navigate to results files etc
+    """
+
     def setUp(self):
         self.browser = webdriver.Firefox()
 
@@ -16,9 +20,13 @@ class NewVisitorTest(unittest.TestCase):
         self.browser.quit()
 
     def test_can_open_a_data_analysis_notebook(self):
+        """
+        A user should be able to navigate to a project they are interested in
+        and open an analysis notebook / results file in the browser
+        """
         # Edith has heard about a cool new app that shows the results of data
         # analysis projects. She goes to check out its homepage.
-        self.browser.get("http://localhost:8000")
+        self.browser.get(self.live_server_url)
 
         # She notices the page title and header mention data analysis projects
         self.assertIn("Data Analysis Results", self.browser.title)
@@ -53,7 +61,3 @@ class NewVisitorTest(unittest.TestCase):
         self.assertIn("abc,123,345", self.browser.page_source)
 
         # Satisfied she goes back to sleep
-
-
-if __name__ == "__main__":
-    unittest.main()
