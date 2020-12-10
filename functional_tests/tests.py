@@ -123,7 +123,7 @@ class ProjectVisibilityTest(StaticLiveServerTestCase):
         self.assertIn(restricted_project, header_text)
 
         # He logs out of the site and is returned to the home page
-        self.browser.find_element(By.XPATH, '//button[text()="Log Out"]').click()
+        self.browser.find_element(By.LINK_TEXT, 'Log Out').click()
 
         # Once again, the restricted project is no-longer visible in the
         # projects table

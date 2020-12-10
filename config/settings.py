@@ -132,6 +132,7 @@ PROJECTS_DIR = Path("dummy_projects")
 
 RESTRICTED_PROJECTS = []
 
-# Move the user to the homepage on login
+# Move the user to the homepage on login/logout
 
 LOGIN_REDIRECT_URL = "home"
+LOGOUT_REDIRECT_URL = "home"
