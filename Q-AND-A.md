@@ -97,7 +97,7 @@ self.client.login(username="john", ...blah...)
 To add a log-in page
 
 - add `path("accounts/", include("django.contrib.auth.urls"))` to urlpatterns
-- add a `login.html` file to `accounts/templates/registration/`
+- add a `login.html` file to `contented/templates/registration/`
 - use Django's default login form in the html template
 - add `LOGIN_REDIRECT_URL = "home"` to `config/settings.py`
 - there is no reason to add a 'view' function/class
