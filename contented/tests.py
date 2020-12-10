@@ -9,7 +9,7 @@ import os
 
 from pathlib import Path
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 
@@ -119,6 +119,10 @@ class HomePageTest(TestCase):
                     )
 
 
+@override_settings(
+    PROJECTS_DIR=Path("dummy_projects"),
+    RESTRICTED_PROJECTS=["my_other_project"],
+)
 class HomePageRestrictionsTest(TestCase):
     """
     The project-names listed on contented-based websites comprises a set of
@@ -142,16 +146,12 @@ class HomePageRestrictionsTest(TestCase):
         WHEN: the user views the home page
         THEN: none of the restricted projects should be visible
         """
-        with self.settings(
-            PROJECTS_DIR=self.collection_details["path"],
-            RESTRICTED_PROJECTS=self.restricted_projects,
-        ):
-            response = self.client.get(reverse("home"))
+        response = self.client.get(reverse("home"))
 
-            for project_id in self.restricted_projects:
-                self.assertNotContains(
-                    response, self.hyperlink_stub.format(proj=project_id), html=True
-                )
+        for project_id in self.restricted_projects:
+            self.assertNotContains(
+                response, self.hyperlink_stub.format(proj=project_id), html=True
+            )
 
     def test_unlogged_users_can_see_all_open_projects(self):
         """
@@ -159,16 +159,12 @@ class HomePageRestrictionsTest(TestCase):
         WHEN: the user views the home page
         THEN: all of the non-restricted projects should be visible
         """
-        with self.settings(
-            PROJECTS_DIR=self.collection_details["path"],
-            RESTRICTED_PROJECTS=self.restricted_projects,
-        ):
-            response = self.client.get(reverse("home"))
+        response = self.client.get(reverse("home"))
 
-            for project_id in self.open_projects:
-                self.assertContains(
-                    response, self.hyperlink_stub.format(proj=project_id), html=True
-                )
+        for project_id in self.open_projects:
+            self.assertContains(
+                response, self.hyperlink_stub.format(proj=project_id), html=True
+            )
 
     def test_logged_users_can_see_all_projects(self):
         """
@@ -176,17 +172,13 @@ class HomePageRestrictionsTest(TestCase):
         WHEN: the user views the home page
         THEN: all available projects should be visible
         """
-        with self.settings(
-            PROJECTS_DIR=self.collection_details["path"],
-            RESTRICTED_PROJECTS=self.restricted_projects,
-        ):
-            self.client.login(username="testuser1", password="not-a-password")
-            response = self.client.get(reverse("home"))
+        self.client.login(username="testuser1", password="not-a-password")
+        response = self.client.get(reverse("home"))
 
-            for project_id in self.collection_details["project_ids"]:
-                self.assertContains(
-                    response, self.hyperlink_stub.format(proj=project_id), html=True
-                )
+        for project_id in self.collection_details["project_ids"]:
+            self.assertContains(
+                response, self.hyperlink_stub.format(proj=project_id), html=True
+            )
 
 
 class ProjectPageTest(TestCase):
