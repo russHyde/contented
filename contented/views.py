@@ -6,8 +6,15 @@ from django.http import HttpResponse
 
 
 def home_page(request):
+    """
+    Home page displays a list of projects
+    If the user is not logged in, only the non-restricted projects are shown
+    Otherwise, all available projects are shown.
+    """
     project_collection = settings.PROJECTS_DIR
     my_projects = os.listdir(project_collection)
+    if not request.user.is_authenticated and settings.RESTRICTED_PROJECTS:
+        my_projects = [p for p in my_projects if p not in settings.RESTRICTED_PROJECTS]
     return render(request, "home.html", {"project_ids": my_projects})
 
 

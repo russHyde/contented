@@ -1,10 +1,23 @@
+"""
+Tests for views:
+- home-page (project-collection)
+- project-page
+- result-page
+"""
+
 import os
+
 from pathlib import Path
-from django.urls import reverse
+from django.contrib.auth.models import User
 from django.test import TestCase
+from django.urls import reverse
 
 
 def get_relative_results_files(project_path):
+    """
+    Return a list containing all files in the directory `project_path` and it's
+    subdirectories. The files are specified relative to `project_path`.
+    """
     result_files = []
     for root, _, files in os.walk(project_path):
         relative_root = Path(root).relative_to(project_path)
@@ -15,6 +28,14 @@ def get_relative_results_files(project_path):
 
 
 def get_collection_details(collection_id):
+    """
+    A collection is a directory containing projects (each of which is a
+    directory).
+    Given a collection_id, this returns
+    - the path to the corresponding collection-directory;
+    - the names of any projects within that directory;
+    - and the relative-path for any project-associated files (as a dictionary).
+    """
     path = Path(collection_id)
     project_ids = os.listdir(path)
     file_paths = {
@@ -25,11 +46,17 @@ def get_collection_details(collection_id):
 
 
 class HomePageTest(TestCase):
+    """
+    The home-page for contented-based websites contains
+    - a list of project-names.
+    """
+
     def setUp(self):
         self.project_collections = {
             collection_id: get_collection_details(collection_id)
             for collection_id in ["dummy_projects", "dummy_projects2"]
         }
+        User.objects.create_user(username="testuser1", password="not-a-password")
 
     def test_uses_home_template(self):
         """
@@ -92,11 +119,82 @@ class HomePageTest(TestCase):
                         response, hyperlink_stub.format(proj=project_id), html=True
                     )
 
+    def test_unlogged_users_cannot_see_restricted_projects(self):
+        """
+        GIVEN: a user is not logged in
+        WHEN: the user views the home page
+        THEN: none of the restricted projects should be visible
+        """
+        collection_id = "dummy_projects"
+        collection_details = self.project_collections[collection_id]
+        restricted_projects = ["my_other_project"]
+
+        hyperlink_stub = """<a href="/projects/{proj}">{proj}</a>"""
+
+        with self.settings(
+            PROJECTS_DIR=collection_details["path"],
+            RESTRICTED_PROJECTS=restricted_projects,
+        ):
+            response = self.client.get(reverse("home"))
+
+            for project_id in restricted_projects:
+                self.assertNotContains(
+                    response, hyperlink_stub.format(proj=project_id), html=True
+                )
+
+    def test_unlogged_users_can_see_all_open_projects(self):
+        """
+        GIVEN: a user is not logged in
+        WHEN: the user views the home page
+        THEN: all of the non-restricted projects should be visible
+        """
+        collection_id = "dummy_projects"
+        collection_details = self.project_collections[collection_id]
+        open_projects = ["my_test_project"]
+        restricted_projects = ["my_other_project"]
+
+        hyperlink_stub = """<a href="/projects/{proj}">{proj}</a>"""
+
+        with self.settings(
+            PROJECTS_DIR=collection_details["path"],
+            RESTRICTED_PROJECTS=restricted_projects,
+        ):
+            response = self.client.get(reverse("home"))
+
+            for project_id in open_projects:
+                self.assertContains(
+                    response, hyperlink_stub.format(proj=project_id), html=True
+                )
+
+    def test_logged_users_can_see_all_projects(self):
+        """
+        GIVEN: a logged-in user
+        WHEN: the user views the home page
+        THEN: all available projects should be visible
+        """
+        collection_id = "dummy_projects"
+        collection_details = self.project_collections[collection_id]
+        restricted_projects = ["my_other_project"]
+
+        hyperlink_stub = """<a href="/projects/{proj}">{proj}</a>"""
+
+        with self.settings(
+            PROJECTS_DIR=collection_details["path"],
+            RESTRICTED_PROJECTS=restricted_projects,
+        ):
+            self.client.login(username="testuser1", password="not-a-password")
+            response = self.client.get(reverse("home"))
+
+            for project_id in collection_details["project_ids"]:
+                self.assertContains(
+                    response, hyperlink_stub.format(proj=project_id), html=True
+                )
+
 
 class ProjectPageTest(TestCase):
     """
-    The project-page is a webpage that contains info about all files connected
-    to a specific analysis project
+    The project-page is a webpage that contains
+    - info about all files connected to a specific analysis project
     """
 
     def setUp(self):
