@@ -131,3 +131,7 @@ PROJECTS_DIR = Path("dummy_projects")
 # The set of projects that are restricted are defined here:
 
 RESTRICTED_PROJECTS = []
+
+# Move the user to the homepage on login
+
+LOGIN_REDIRECT_URL = "home"

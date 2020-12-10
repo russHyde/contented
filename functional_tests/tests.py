@@ -85,21 +85,21 @@ class ProjectVisibilityTest(StaticLiveServerTestCase):
         rows = table.find_elements(By.TAG_NAME, "tr")
         self.assertNotIn(restricted_project, [row.text for row in rows])
 
-        # He opens the URL for logging in to the site
-        self.browser.get(self.live_server_url + "/accounts/login/")
-
-        # He logs into the site, but uses the wrong password
-        username_input = self.browser.find_element(By.NAME, "username")
-        username_input.send_keys('fred')
-        password_input = self.browser.find_element(By.NAME, "password")
-        password_input.send_keys('not-freds-password')
-        self.browser.find_element_by_xpath('//input[@value="Log in"]').click()
-
-        # After being redirected to the home page, he notes that the classified
-        # project is not visible
-        table = self.browser.find_element(By.ID, "project_table")
-        rows = table.find_elements(By.TAG_NAME, "tr")
-        self.assertNotIn(restricted_project, [row.text for row in rows])
+    #         # He opens the URL for logging in to the site
+    #         self.browser.get(self.live_server_url + "/accounts/login/")
+    #
+    #         # He logs into the site, but uses the wrong password
+    #         username_input = self.browser.find_element(By.NAME, "username")
+    #         username_input.send_keys('fred')
+    #         password_input = self.browser.find_element(By.NAME, "password")
+    #         password_input.send_keys('not-freds-password')
+    #         self.browser.find_element(By.XPATH, '//button[text()="Log In"]').click()
+    #
+    #         # After being redirected to the home page, he notes that the classified
+    #         # project is not visible
+    #         table = self.browser.find_element(By.ID, "project_table")
+    #         rows = table.find_elements(By.TAG_NAME, "tr")
+    #         self.assertNotIn(restricted_project, [row.text for row in rows])
 
         # He logs into the site with the correct password
         self.browser.get(self.live_server_url + "/accounts/login/")
@@ -107,7 +107,7 @@ class ProjectVisibilityTest(StaticLiveServerTestCase):
         username_input.send_keys('fred')
         password_input = self.browser.find_element(By.NAME, "password")
         password_input.send_keys('fredpassword')
-        self.browser.find_element_by_xpath('//input[@value="Log in"]').click()
+        self.browser.find_element(By.XPATH, '//button[text()="Log In"]').click()
 
         # After being redirected to the home-page, he notices the classified
         # project is visible
@@ -115,12 +115,27 @@ class ProjectVisibilityTest(StaticLiveServerTestCase):
         rows = table.find_elements(By.TAG_NAME, "tr")
         self.assertIn(restricted_project, [row.text for row in rows])
 
-        # He opens the report he wanted to view
+        # He opens the project he wanted to view and stores it's URL for later
+        # use
+        self.browser.find_element(By.LINK_TEXT, restricted_project).click()
+        restricted_url = self.browser.current_url
+        header_text = self.browser.find_element(By.TAG_NAME, "h1").text
+        self.assertIn(restricted_project, header_text)
 
-        # He logs out of the site
+        # He logs out of the site and is returned to the home page
+        self.browser.find_element(By.XPATH, '//button[text()="Log Out"]').click()
 
-        # He wonders whether he could access the report with it's URL if he
+        # Once again, the restricted project is no-longer visible in the
+        # projects table
+        table = self.browser.find_element(By.ID, "project_table")
+        rows = table.find_elements(By.TAG_NAME, "tr")
+        self.assertNotIn(restricted_project, [row.text for row in rows])
+
+        # He wonders whether he could access the project with it's URL if he
         # isn't logged in
+        self.browser.get(restricted_url)
+        header_text = self.browser.find_element(By.TAG_NAME, "h1").text
+        self.assertNotIn(restricted_project, header_text)
 
         # Satisfied that people have to be logged in to access the report he
         # goes back to sleep
