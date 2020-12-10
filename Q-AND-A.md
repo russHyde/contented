@@ -87,13 +87,26 @@ from django.contrib.auth.models import User
 user = User.objects.create_user('john', 'lennon@thebeatles.com', 'johnpassword')
 ```
 
+Then in tests:
+
+```
+# where `self` is a subclass of `django.test.TestCase`
+self.client.login(username="john", ...blah...)
+```
+
 To add a log-in page
 
 - add `path("accounts/", include("django.contrib.auth.urls"))` to urlpatterns
-- add a `login.html` file to `contented/templates/registration/`
+- add a `login.html` file to `accounts/templates/registration/`
 - use Django's default login form in the html template
 - add `LOGIN_REDIRECT_URL = "home"` to `config/settings.py`
 - there is no reason to add a 'view' function/class
+
+To use the login page within the functional tests, either:
+
+- go to `self.live_server_url + "/accounts/login/"`
+- or follow a "Log In" button from the home-page (this should redirect to
+  `<home>/accounts/login`)
 
 TODO
 
@@ -111,5 +124,3 @@ accessible (ie, tinker with the code for contented or in the admin for the site)
 
 For now, added `RESTRICTED_PROJECTS = []` to config; plan to update this based
 on env-vars or project-collection-associated config file
-
-TODO
