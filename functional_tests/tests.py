@@ -2,7 +2,6 @@
 Functional tests for `contented` app-skeleton
 """
 
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import override_settings
@@ -70,6 +69,11 @@ class ProjectVisibilityTest(StaticLiveServerTestCase):
 
     @override_settings(RESTRICTED_PROJECTS=["my_other_project"])
     def test_only_logged_in_users_can_see_restricted_projects(self):
+        """
+        Some projects in a project-collection may be flagged as restricted, and
+        to access these projects a user needs to be logged in.
+        """
+
         # Fred wants to check a report for the classified "my_other_project"
         restricted_project = "my_other_project"
 
@@ -82,14 +86,34 @@ class ProjectVisibilityTest(StaticLiveServerTestCase):
         self.assertNotIn(restricted_project, [row.text for row in rows])
 
         # He opens the URL for logging in to the site
+        self.browser.get(self.live_server_url + "/accounts/login/")
 
         # He logs into the site, but uses the wrong password
+        username_input = self.browser.find_element(By.NAME, "username")
+        username_input.send_keys('fred')
+        password_input = self.browser.find_element(By.NAME, "password")
+        password_input.send_keys('not-freds-password')
+        self.browser.find_element_by_xpath('//input[@value="Log in"]').click()
 
-        # He notes that the classified project is not visible
+        # After being redirected to the home page, he notes that the classified
+        # project is not visible
+        table = self.browser.find_element(By.ID, "project_table")
+        rows = table.find_elements(By.TAG_NAME, "tr")
+        self.assertNotIn(restricted_project, [row.text for row in rows])
 
         # He logs into the site with the correct password
+        self.browser.get(self.live_server_url + "/accounts/login/")
+        username_input = self.browser.find_element(By.NAME, "username")
+        username_input.send_keys('fred')
+        password_input = self.browser.find_element(By.NAME, "password")
+        password_input.send_keys('fredpassword')
+        self.browser.find_element_by_xpath('//input[@value="Log in"]').click()
 
-        # The classified project is visible
+        # After being redirected to the home-page, he notices the classified
+        # project is visible
+        table = self.browser.find_element(By.ID, "project_table")
+        rows = table.find_elements(By.TAG_NAME, "tr")
+        self.assertIn(restricted_project, [row.text for row in rows])
 
         # He opens the report he wanted to view
 
