@@ -2,7 +2,11 @@
 Functional tests for `contented` app-skeleton
 """
 
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.test import override_settings
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
@@ -15,6 +19,8 @@ class ProjectVisibilityTest(StaticLiveServerTestCase):
 
     def setUp(self):
         self.browser = webdriver.Firefox()
+        User.objects.create_user("edith", "edith@somewhere.net", "edithpassword")
+        User.objects.create_user("fred", "fred@somewhere_else.com", "fredpassword")
 
     def tearDown(self):
         self.browser.quit()
@@ -61,3 +67,37 @@ class ProjectVisibilityTest(StaticLiveServerTestCase):
         self.assertIn("abc,123,345", self.browser.page_source)
 
         # Satisfied she goes back to sleep
+
+    @override_settings(RESTRICTED_PROJECTS=["my_other_project"])
+    def test_only_logged_in_users_can_see_restricted_projects(self):
+        # Fred wants to check a report for the classified "my_other_project"
+        restricted_project = "my_other_project"
+
+        # He opens the URL for the homepage
+        self.browser.get(self.live_server_url)
+
+        # He notes that the classified project is not visible at the moment
+        table = self.browser.find_element(By.ID, "project_table")
+        rows = table.find_elements(By.TAG_NAME, "tr")
+        self.assertNotIn(restricted_project, [row.text for row in rows])
+
+        # He opens the URL for logging in to the site
+
+        # He logs into the site, but uses the wrong password
+
+        # He notes that the classified project is not visible
+
+        # He logs into the site with the correct password
+
+        # The classified project is visible
+
+        # He opens the report he wanted to view
+
+        # He logs out of the site
+
+        # He wonders whether he could access the report with it's URL if he
+        # isn't logged in
+
+        # Satisfied that people have to be logged in to access the report he
+        # goes back to sleep
+        self.fail("Finish the test!")
