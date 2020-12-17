@@ -2,7 +2,7 @@
 Functional tests for `contented` app-skeleton
 """
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import override_settings
 
@@ -18,8 +18,12 @@ class ProjectVisibilityTest(StaticLiveServerTestCase):
 
     def setUp(self):
         self.browser = webdriver.Firefox()
-        User.objects.create_user("edith", "edith@somewhere.net", "edithpassword")
-        User.objects.create_user("fred", "fred@somewhere_else.com", "fredpassword")
+        get_user_model().objects.create_user(
+            "edith", "edith@somewhere.net", "edithpassword"
+        )
+        get_user_model().objects.create_user(
+            "fred", "fred@somewhere_else.com", "fredpassword"
+        )
 
     def tearDown(self):
         self.browser.quit()
