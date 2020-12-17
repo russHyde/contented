@@ -48,7 +48,13 @@ def results_page(request, project_id, file_name):
     """
     Selects an appropriate report / results file to display in the browser
     based on users-selection.
+
+    If the user is not logged in, and the file is within a restricted project,
+    then the user is redirected to the login page.
     """
+    if project_id in settings.RESTRICTED_PROJECTS and not request.user.is_authenticated:
+        return HttpResponseRedirect(settings.LOGIN_URL)
+
     project_collection = settings.PROJECTS_DIR
     file_path = project_collection / project_id / file_name
     file_contents = ""

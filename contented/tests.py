@@ -321,6 +321,7 @@ class ResultsPageTest(TestCase):
             collection_id: get_collection_details(collection_id)
             for collection_id in ["dummy_projects", "dummy_projects2"]
         }
+        User.objects.create_user(username="testuser1", password="not-a-password")
 
     def test_results_page_opens(self):
         """
@@ -364,3 +365,37 @@ class ResultsPageTest(TestCase):
                         response_text = response.content.decode("utf8")
 
                         self.assertEqual(response_text, file_text)
+
+    @override_settings(
+        PROJECTS_DIR=Path("dummy_projects"),
+        RESTRICTED_PROJECTS=["my_other_project"],
+    )
+    def test_logged_in_users_can_open_restricted_files(self):
+        """
+        GIVEN: a logged-in user and a file within a restricted project
+        WHEN: the user tries to open the URL for that file
+        THEN: the results file opens without error
+        """
+        self.client.login(username="testuser1", password="not-a-password")
+        url = reverse("results", args=["my_other_project", "README.md"])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200, f"Couldn't open {url}")
+
+    @override_settings(
+        PROJECTS_DIR=Path("dummy_projects"),
+        RESTRICTED_PROJECTS=["my_other_project"],
+    )
+    def test_unlogged_users_cannot_open_restricted_files(self):
+        """
+        GIVEN: a user who has not logged in and a file in a restricted project
+        WHEN: the user tries to open the URL for the file
+        THEN: the user is redirected to the login page
+        """
+        url = reverse("results", args=["my_other_project", "README.md"])
+        response = self.client.get(url)
+        self.assertEqual(
+            response.status_code,
+            302,
+            "Couldn't redirect to login when accessing a restricted project",
+        )
+        self.assertEqual(response.url, settings.LOGIN_URL)
