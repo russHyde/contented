@@ -1,13 +1,16 @@
-<html>
-  <head>
-    <title>Data Analysis Results: {{ project_id }}</title>
-  </head>
-  <body>
-    <h1>Data Analysis Results: {{ project_id }}</h1>
-    <table id="results_table">
-      {% for f in results_files %}
-      <tr><td><a href="/projects/{{ project_id }}/{{ f }}">{{ f }}</a></td></tr>
-      {% endfor %}
-    </table>
-  </body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}
+  <title>Data Analysis Results: {{ project_id }}</title>
+{% endblock title %}
+
+{% block content %}
+  <h1>Data Analysis Results: {{ project_id }}</h1>
+  <table id="results_table">
+    {% for f in results_files %}
+    <tr><td><a href="/projects/{{ project_id }}/{{ f }}">{{ f }}</a></td></tr>
+    {% endfor %}
+  </table>
+{% endblock content %}
+
+

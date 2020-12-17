@@ -1,0 +1,17 @@
+<html>
+  <head>
+    {% block title %}
+    {% endblock title %}
+  </head>
+  <body>
+    {% if user.is_authenticated %}
+      <p>Hi {{ user.username }}!</p>
+      <p><a href="{% url 'logout' %}">Log Out</a></p>
+    {% else %}
+      <p>You are not logged in.</p>
+      <a href="{% url 'login' %}">Log In</a>
+    {% endif %}
+    {% block content %}
+    {% endblock content %}
+  </body>
+</html>

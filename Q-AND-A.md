@@ -24,7 +24,7 @@ Want to have a functional test that does the following:
 
 Therefore, need a test database for this test
 
-## ?? Setting up a test database for use in Functional Tests
+### ?? Setting up a test database for use in Functional Tests
 
 Initial functional test used `unittest.TestCase` and was ran using
 `unittest.main()`. This is somewhat limited: it uses whatever database is
@@ -39,7 +39,7 @@ The subclass `StaticLiveServerTestCase` ensures any static files are served
 during testing (eg, any css / javascript); which may be useful for subsequent
 tests. So we use that.
 
-## ?? Running Functional Tests based on `StaticLiveServerTestCase`
+### ?? Running Functional Tests based on `StaticLiveServerTestCase`
 
 When using `unittest.TestCase` we
 
@@ -76,3 +76,61 @@ tests are ran as follows:
 
 # note the absence of the .py extension
 ```
+
+### ?? Adding, Authorising, Logging-in users within Tests
+
+To add a user:
+
+```
+# From the Django docs
+from django.contrib.auth.models import User
+user = User.objects.create_user('john', 'lennon@thebeatles.com', 'johnpassword')
+```
+
+Then in tests:
+
+```
+# where `self` is a subclass of `django.test.TestCase`
+self.client.login(username="john", ...blah...)
+```
+
+To add a log-in page
+
+- add `path("accounts/", include("django.contrib.auth.urls"))` to urlpatterns
+- add a `login.html` file to `contented/templates/registration/`
+- use Django's default login form in the html template
+- add `LOGIN_REDIRECT_URL = "home"` to `config/settings.py`
+- there is no reason to add a 'view' function/class
+
+To use the login page within the functional tests, either:
+
+- go to `self.live_server_url + "/accounts/login/"`
+- or follow a "Log In" button from the home-page (this should redirect to
+  `<home>/accounts/login`)
+
+### ?? Setting access-restrictions for a project
+
+Options:
+- add a config entry that indicates which projects are restricted
+- add a database model for projects
+- add a restrictions.yaml to the project-collection directory
+- add an environment variable containing the names of restricted projects (and
+  parse it into the config)
+
+In the first two cases would need to do some manual work to ensure a project is
+accessible (ie, tinker with the code for contented or in the admin for the site)
+
+For now, added `RESTRICTED_PROJECTS = []` to config; plan to update this based
+on env-vars or project-collection-associated config file
+
+### ?? Test a user is redirected to login when accessing a restricted project
+
+- Add a restricted project to `RESTRICTED_PROJECTS` using `@override_settings`
+- Try to access that restricted project via it's URL
+- Check for redirection (code 302 = redirection)
+- Planned: Check that template for login is used (ie, login.html)
+    - note the latter did not work; when using assertTemplateUsed, the
+      testrunner claimed that no template was used at all (rather than the
+      login.html template; that the latter template is used can be seen in the
+      browser)
+- Therefore checked that the redirection URL matches the login URL
