@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "accounts",
     "contented",
 ]
 
@@ -136,3 +137,7 @@ RESTRICTED_PROJECTS = []
 
 LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "home"
+
+# Use a custom user-model
+
+AUTH_USER_MODEL = "accounts.CustomUser"
