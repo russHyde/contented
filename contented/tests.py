@@ -8,6 +8,7 @@ Tests for views:
 import os
 
 from pathlib import Path
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -287,9 +288,7 @@ class ProjectPageTest(TestCase):
         self.client.login(username="testuser1", password="not-a-password")
         url = reverse("project", args=["my_other_project"])
         response = self.client.get(url)
-        self.assertEqual(
-            response.status_code, 200, f"Couldn't open {url}"
-        )
+        self.assertEqual(response.status_code, 200, f"Couldn't open {url}")
         self.assertTemplateUsed(response, "project.html")
 
     @override_settings(
@@ -305,13 +304,16 @@ class ProjectPageTest(TestCase):
         url = reverse("project", args=["my_other_project"])
         response = self.client.get(url)
         self.assertEqual(
-            response.status_code, 302,
-            "Couldn't redirect to login when accessing a restricted project"
+            response.status_code,
+            302,
+            "Couldn't redirect to login when accessing a restricted project",
         )
-        # TODO: wanted to test that registration/login.html template is used
-        # when redirecting unlogged users, but when I use assertTemplateUsed it
+        # Wanted to test that registration/login.html template is used when
+        # redirecting unlogged users, but when I use assertTemplateUsed it
         # claims that no templates were used when rendering; I suspect this is
         # because the page redirects rather than renders the chosen page.
+        self.assertEqual(response.url, settings.LOGIN_URL)
+
 
 class ResultsPageTest(TestCase):
     def setUp(self):
