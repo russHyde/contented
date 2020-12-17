@@ -108,8 +108,6 @@ To use the login page within the functional tests, either:
 - or follow a "Log In" button from the home-page (this should redirect to
   `<home>/accounts/login`)
 
-TODO
-
 ### ?? Setting access-restrictions for a project
 
 Options:
@@ -124,3 +122,15 @@ accessible (ie, tinker with the code for contented or in the admin for the site)
 
 For now, added `RESTRICTED_PROJECTS = []` to config; plan to update this based
 on env-vars or project-collection-associated config file
+
+### ?? Test a user is redirected to login when accessing a restricted project
+
+- Add a restricted project to `RESTRICTED_PROJECTS` using `@override_settings`
+- Try to access that restricted project via it's URL
+- Check for redirection (code 302 = redirection)
+- Planned: Check that template for login is used (ie, login.html)
+    - note the latter did not work; when using assertTemplateUsed, the
+      testrunner claimed that no template was used at all (rather than the
+      login.html template; that the latter template is used can be seen in the
+      browser)
+- Therefore checked that the redirection URL matches the login URL
