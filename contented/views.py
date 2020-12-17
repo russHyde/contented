@@ -76,6 +76,7 @@ def get_accessible_projects(user):
 
     return projects
 
+
 def get_relative_results_files(project_path):
     """
     For a given directory, `project_path`, return a list of `Path`s for all the
