@@ -1,9 +1,13 @@
+"""
+View functions for the home-page, project-pages and results-pages of a given
+collection of projects
+"""
+
 import os
 from pathlib import Path
 from django.conf import settings
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
-from django.urls import reverse
 
 
 def home_page(request):
@@ -20,6 +24,12 @@ def home_page(request):
 
 
 def project_page(request, project_id):
+    """
+    Project page displays a list of the files that are available for a given
+    project.
+    If the user is not logged in and the project is restricted, the user is
+    redirected to the log-in page when trying to open a given project page.
+    """
     if project_id in settings.RESTRICTED_PROJECTS and not request.user.is_authenticated:
         return HttpResponseRedirect(settings.LOGIN_URL)
 
