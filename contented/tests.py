@@ -9,7 +9,7 @@ import os
 
 from pathlib import Path
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
@@ -137,7 +137,9 @@ class HomePageRestrictionsTest(TestCase):
         self.open_projects = ["my_test_project"]
         self.restricted_projects = ["my_other_project"]
 
-        User.objects.create_user(username="testuser1", password="not-a-password")
+        get_user_model().objects.create_user(
+            username="testuser1", password="not-a-password"
+        )
 
         self.hyperlink_stub = """<a href="/projects/{proj}">{proj}</a>"""
 
@@ -193,7 +195,9 @@ class ProjectPageTest(TestCase):
             collection_id: get_collection_details(collection_id)
             for collection_id in ["dummy_projects", "dummy_projects2"]
         }
-        User.objects.create_user(username="testuser1", password="not-a-password")
+        get_user_model().objects.create_user(
+            username="testuser1", password="not-a-password"
+        )
 
     def test_uses_project_template(self):
         """
@@ -346,7 +350,9 @@ class ResultsPageTest(TestCase):
             collection_id: get_collection_details(collection_id)
             for collection_id in ["dummy_projects", "dummy_projects2"]
         }
-        User.objects.create_user(username="testuser1", password="not-a-password")
+        get_user_model().objects.create_user(
+            username="testuser1", password="not-a-password"
+        )
 
     def test_results_page_opens(self):
         """
