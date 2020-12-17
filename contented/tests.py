@@ -192,6 +192,7 @@ class ProjectPageTest(TestCase):
             collection_id: get_collection_details(collection_id)
             for collection_id in ["dummy_projects", "dummy_projects2"]
         }
+        User.objects.create_user(username="testuser1", password="not-a-password")
 
     def test_uses_project_template(self):
         """
@@ -273,6 +274,44 @@ class ProjectPageTest(TestCase):
     #
     #    self.assertEqual(response.status_code, 404, f"Non-existing project")
 
+    @override_settings(
+        PROJECTS_DIR=Path("dummy_projects"),
+        RESTRICTED_PROJECTS=["my_other_project"],
+    )
+    def test_logged_in_users_can_open_restricted_projects(self):
+        """
+        GIVEN: a logged-in user and a restricted project
+        WHEN: the user tries to open the URL for that project
+        THEN: the project page opens without error
+        """
+        self.client.login(username="testuser1", password="not-a-password")
+        url = reverse("project", args=["my_other_project"])
+        response = self.client.get(url)
+        self.assertEqual(
+            response.status_code, 200, f"Couldn't open {url}"
+        )
+        self.assertTemplateUsed(response, "project.html")
+
+    @override_settings(
+        PROJECTS_DIR=Path("dummy_projects"),
+        RESTRICTED_PROJECTS=["my_other_project"],
+    )
+    def test_unlogged_users_cannot_open_restricted_projects(self):
+        """
+        GIVEN: a user who has not logged in and a restricted project
+        WHEN: the user tries to open the URL for the project
+        THEN: the user is redirected to the login page
+        """
+        url = reverse("project", args=["my_other_project"])
+        response = self.client.get(url)
+        self.assertEqual(
+            response.status_code, 302,
+            "Couldn't redirect to login when accessing a restricted project"
+        )
+        # TODO: wanted to test that registration/login.html template is used
+        # when redirecting unlogged users, but when I use assertTemplateUsed it
+        # claims that no templates were used when rendering; I suspect this is
+        # because the page redirects rather than renders the chosen page.
 
 class ResultsPageTest(TestCase):
     def setUp(self):

@@ -2,7 +2,8 @@ import os
 from pathlib import Path
 from django.conf import settings
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
+from django.urls import reverse
 
 
 def home_page(request):
@@ -19,6 +20,9 @@ def home_page(request):
 
 
 def project_page(request, project_id):
+    if project_id in settings.RESTRICTED_PROJECTS and not request.user.is_authenticated:
+        return HttpResponseRedirect(settings.LOGIN_URL)
+
     project_collection = settings.PROJECTS_DIR
     project_path = project_collection / project_id
     project_files = get_relative_results_files(project_path)
