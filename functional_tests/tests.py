@@ -118,7 +118,7 @@ class ProjectVisibilityTest(StaticLiveServerTestCase):
         # He opens the project he wanted to view and stores it's URL for later
         # use
         self.browser.find_element(By.LINK_TEXT, restricted_project).click()
-        restricted_url = self.browser.current_url
+        restricted_project_url = self.browser.current_url
         header_text = self.browser.find_element(By.TAG_NAME, "h1").text
         self.assertIn(restricted_project, header_text)
 
@@ -133,10 +133,13 @@ class ProjectVisibilityTest(StaticLiveServerTestCase):
 
         # He wonders whether he could access the project with it's URL if he
         # isn't logged in
-        self.browser.get(restricted_url)
-        header_text = self.browser.find_element(By.TAG_NAME, "h1").text
-        self.assertNotIn(restricted_project, header_text)
+        self.browser.get(restricted_project_url)
+        self.assertNotIn(restricted_project, self.browser.page_source)
+
+        # He wonders whether he could access a file within the project using
+        # it's URL when he isn't logged in
+        self.browser.get(f"{restricted_project_url}/README.md")
+        self.assertNotIn("THIS IS ANOTHER PROJECT", self.browser.page_source)
 
         # Satisfied that people have to be logged in to access the report he
         # goes back to sleep
-        self.fail("Finish the test!")
