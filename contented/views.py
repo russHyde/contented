@@ -16,11 +16,8 @@ def home_page(request):
     If the user is not logged in, only the non-restricted projects are shown
     Otherwise, all available projects are shown.
     """
-    project_collection = settings.PROJECTS_DIR
-    my_projects = os.listdir(project_collection)
-    if not request.user.is_authenticated and settings.RESTRICTED_PROJECTS:
-        my_projects = [p for p in my_projects if p not in settings.RESTRICTED_PROJECTS]
-    return render(request, "home.html", {"project_ids": my_projects})
+    projects = get_accessible_projects(request.user)
+    return render(request, "home.html", {"project_ids": projects})
 
 
 def project_page(request, project_id):
@@ -30,7 +27,7 @@ def project_page(request, project_id):
     If the user is not logged in and the project is restricted, the user is
     redirected to the log-in page when trying to open a given project page.
     """
-    if project_id in settings.RESTRICTED_PROJECTS and not request.user.is_authenticated:
+    if not project_id in get_accessible_projects(request.user):
         return HttpResponseRedirect(settings.LOGIN_URL)
 
     project_collection = settings.PROJECTS_DIR
@@ -52,7 +49,7 @@ def results_page(request, project_id, file_name):
     If the user is not logged in, and the file is within a restricted project,
     then the user is redirected to the login page.
     """
-    if project_id in settings.RESTRICTED_PROJECTS and not request.user.is_authenticated:
+    if not project_id in get_accessible_projects(request.user):
         return HttpResponseRedirect(settings.LOGIN_URL)
 
     project_collection = settings.PROJECTS_DIR
@@ -66,6 +63,18 @@ def results_page(request, project_id, file_name):
 
 # Helpers
 
+
+def get_accessible_projects(user):
+    """
+    A logged-in user can view all projects, both restricted and non-restricted.
+    A user who is not logged in can only view non-restricted projects.
+    """
+    project_collection = settings.PROJECTS_DIR
+    projects = os.listdir(project_collection)
+    if settings.RESTRICTED_PROJECTS and not user.is_authenticated:
+        projects = [p for p in projects if p not in settings.RESTRICTED_PROJECTS]
+
+    return projects
 
 def get_relative_results_files(project_path):
     """
