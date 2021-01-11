@@ -134,3 +134,78 @@ on env-vars or project-collection-associated config file
       login.html template; that the latter template is used can be seen in the
       browser)
 - Therefore checked that the redirection URL matches the login URL
+
+## How to style the website using bootstrap
+
+Bootstrap v5-beta1 is the latest version (as of 2021-01-10)
+
+Add bootstrap to ./static folder of the `contented` app (rather than using
+downloading each time the site loads)
+
+```
+wget \
+  -O bootstrap.zip \
+  https://github.com/twbs/bootstrap/releases/download/v5.0.0-beta1/bootstrap-5.0.0-beta1-dist.zip
+unzip bootstrap.zip
+mkdir contented/static
+mv bootstrap-5.0.0-beta1-dist contented/static/bootstrap
+rm bootstrap.zip
+```
+
+Load the css into the `head` of the html files:
+
+```
+...
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+</head>
+...
+```
+
+Indicate that the bootstrap URL ("/static/bootstrap/css/bootstrap.min.css")
+used in the above is for a static file, rather than html. If a URL starts with
+the `STATIC_URL` defined in `config/settings.py` (ie, "/static/") then the URL
+is a static and will be loaded.
+
+(Ensure that `django.contrib.staticfiles` is in the `INSTALLED_APPS`, which it
+is by default)
+
+Rather than coding the `STATIC_URL` ("/static/") into the URLs for static
+files, you can use the 'static' template tag in any .html files (this will
+prepend the `STATIC_URL` to filenames)
+
+```
+{% load static %}
+...
+<link href={% static "bootstrap/css/bootstrap.min.css" %} rel="stylesheet">
+```
+
+Similarly, add this to the body of an .html file to load the bootstrap/popper
+bundled javascript file:
+
+```
+<body>
+...
+  <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+</body>
+```
+
+The static files shouldn't be served by django in production (django is slower
+at this than nginx), so it's better to make a single directory where nginx can
+deploy static files from. These files are collected into `STATIC_ROOT` by
+django's `collectstatic` command. We set `STATIC_ROOT` to "{`base_dir`}/static"
+
+```
+# config/settings.py
+...
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
+```
+
+Then collect the static files together:
+
+```
+./manage.py collectstatic
+```
+
