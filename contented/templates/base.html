@@ -1,17 +1,32 @@
+{% load static %}
+
 <html>
   <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+
     {% block title %}
     {% endblock title %}
   </head>
   <body>
-    {% if user.is_authenticated %}
-      <p>Hi {{ user.username }}!</p>
-      <p><a href="{% url 'logout' %}">Log Out</a></p>
-    {% else %}
-      <p>You are not logged in.</p>
-      <a href="{% url 'login' %}">Log In</a>
-    {% endif %}
-    {% block content %}
-    {% endblock content %}
+    <div class="container">
+      {% if user.is_authenticated %}
+        <p>Hi {{ user.username }}!</p>
+        <p><a href="{% url 'logout' %}">Log Out</a></p>
+      {% else %}
+        <p>You are not logged in.</p>
+        <a href="{% url 'login' %}">Log In</a>
+      {% endif %}
+      {% block content %}
+      {% endblock content %}
+    </div>
+
+    <!-- Load Bootstrap Bundle with Popper -->
+    <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
   </body>
 </html>
