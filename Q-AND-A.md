@@ -209,3 +209,16 @@ Then collect the static files together:
 ./manage.py collectstatic
 ```
 
+## How to deploy to staging server
+
+Want to run tests against staging site: `contented-staging.russlearnsweb.co.uk`
+
+To run the functional tests against that site from local computer:
+
+Define the `live_server_url` to be "http://contented-staging..." for the
+functional tests during test setUp (obtain the URL from an env variable).
+
+```
+STAGING_SERVER=contented-staging.russlearnsweb.co.uk \
+  python manage.py test functional_tests
+```
