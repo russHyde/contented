@@ -21,6 +21,8 @@ eg, on Ubuntu:
 ## Build environment
 
 * From ~/sites/DOMAIN run `pipenv install`
+* Copy `./deploy_tools/template.env` or update to `./.env` (eg, set the correct
+  sitenae and add a randomly-generated secret-key)
 
 ## Collect static files
 
