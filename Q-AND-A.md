@@ -209,3 +209,186 @@ Then collect the static files together:
 ./manage.py collectstatic
 ```
 
+## ?? Deploy to staging server
+
+Want to run tests against staging site: `contented-staging.russlearnsweb.co.uk`
+
+To run the functional tests against that site from local computer:
+
+Define the `live_server_url` to be "http://contented-staging..." for the
+functional tests during test setUp (obtain the URL from an env variable).
+
+```
+STAGING_SERVER=contented-staging.russlearnsweb.co.uk \
+  python manage.py test functional_tests
+```
+
+### Prerequisites
+
+(Add the URL/IP-address for the staging site/server to the registrar)
+(Add gunicorn to the environment for the project using `pipenv install gunicorn`)
+
+### Provision the server & obtain code
+
+SSH into the server (user login is controlled by secret key)
+
+Ensure the server has the following available:
+
+- `python 3.8` (python3 was installed when superlists was deployed on the
+  server; note that it is run using `python3` not `python`); but the versions
+  of python used in superlists and contented differ: superlists used python3.6
+  (the version that runs when calling python3 on the server) and contented uses
+  python3.8. (Later, running `pipenv install` failed because it
+  couldn't install python3.8: pyenv or asdf are required for pipenv to install
+  alternative python versions). Therefore installed `python3.8` using
+  `sudo apt install python3.8`
+
+- `pip`. It wasn't: superlists used venv, not pipenv; therefore installed using
+  `sudo apt install python3-pip`
+
+- `pipenv`. It wasn't: therefore installed using `pip3 install pipenv`; then
+  logged back into the server.
+
+- `nginx`
+
+All django projects are stored in ~/sites/. Clone code from github:
+
+```
+export SITENAME=contented-staging.russlearnsweb.co.uk
+git clone git@github.com:russHyde/contented.git ~/sites/${SITENAME}
+```
+
+### Build the environment and define env-variables (& how to run in that env)
+
+Generate environment from Pipfile
+
+```
+cd ~/sites/${SITENAME}
+pipenv install
+```
+
+Add `DJANGO_DEBUG_FALSE`, `SITENAME`, `DJANGO_SECRET_KEY` environment vars to
+`~/sites/${SITENAME}/.env`
+
+```
+echo DJANGO_DEBUG_FALSE=y >> .env
+echo SITENAME=${SITENAME} >> .env
+echo DJANGO_SECRET_KEY=$(python3.8 -c"import Random; print(''.join(random.SystemRandom().choices('abcdefghijklmnopqrstuvwxyz0123456789', k=50)))") >> .env
+```
+
+pipenv defines the virtual env in `${HOME}/.local/share/virtualenvs/`
+
+To run code in the environment defined by pipenv, either start a `pipenv shell`
+and write commands within it, or use `pipenv run <command>`. pipenv will load
+any env-vars defined in .env before calling the commands.
+
+For example, this will run the Django webserver listening on port 8000
+
+```
+# on the server in ~/sites/${SITENAME}
+pipenv run \
+  ./manage.py runserver 0.0.0.0:8000
+```
+
+Then we can run the functional tests from the laptop:
+
+```
+# from the laptop, run tests against the django webserver that is running on
+# the server
+STAGING_SERVER=${SITENAME}:8000 \
+  ./manage.py test functional_tests
+```
+
+Note that some functional tests may fail when called against the staging site
+if they depend on modifying Django settings, or on the state of the server's
+database.
+
+### ?? Set up / configure webserver
+
+Collect the static files from across the django project into `./static` so they
+can be served by nginx
+
+```
+# from ~/sites/${SITENAME}
+pipenv run \
+  ./manage.py collectstatic --noinput
+```
+
+Configure nginx to listen on port 80 (as is typical for a webserver). Tell it
+where to find the static files that we just collected and tell it to use a unix
+socket (so that we can serve several sites from the same server; all requests
+to port 80 will be proxied to this random port) and to pass the host headers on
+from the original web request (otherwise it will look like requests came from
+'localhost')
+
+```
+# Contents of /etc/nginx/sites-available/DOMAIN
+# where we replace DOMAIN with contented-staging.russlearnsweb.co.uk
+# and USER with my username
+server {
+  listen 80;
+  server_name DOMAIN;
+
+  location /static {
+    alias /home/USER/sites/DOMAIN/static;
+  }
+
+  location / {
+    proxy_pass http://unix:/tmp/DOMAIN.socket;
+    proxy_set_header Host $host;
+  }
+}
+```
+
+Then set up a symlink from `/etc/nginx/sites-enabled/DOMAIN` to the
+`sites-available` config file
+
+Configure systemd to run gunicorn.
+
+Note since `wsgi.py` is in the 'config' directory of contented, and since we've
+just defined a unix socket for the site, we can serve the site by running:
+
+```
+sudo systemctl start nginx # or ... systemctl reload nginx
+
+pipenv run \
+  gunicorn --bind unix:/tmp/${SITENAME}.socket config.wsgi:application
+```
+
+We use systemd to ensure that gunicorn is started whenever the server reloads.
+To do this, we add a systemd `.service` file for the site:
+
+```
+# /etc/systemd/system/gunicorn-${SITENAME}.service
+# Replace DOMAIN with SITENAME and USER with my username
+# If your wsgi.py is not at ./config/wsgi.py then change 'config.wsgi' to
+# appropriate pathname
+[Unit]
+Description=Gunicorn server for DOMAIN
+
+[Service]
+Restart=on-failure
+User=USER
+WorkingDirectory=/home/USER/sites/DOMAIN
+EnvironmentFile=/home/USER/sites/DOMAIN/.env
+ExecStart=/home/USER/.local/bin/pipenv run \
+  gunicorn --bind unix:/tmp/DOMAIN.socket \
+  config.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Run nginx
+
+```
+sudo systemctl start nginx
+```
+
+Run gunicorn from a systemd process
+
+```
+sudo systemctl daemon-reload
+sudo systemctl enable gunicorn-${SITENAME}
+sudo systemctl start gunicorn-${SITENAME}
+```

@@ -2,6 +2,8 @@
 Functional tests for `contented` app-skeleton
 """
 
+import os
+
 from django.contrib.auth import get_user_model
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import override_settings
@@ -18,6 +20,10 @@ class ProjectVisibilityTest(StaticLiveServerTestCase):
 
     def setUp(self):
         self.browser = webdriver.Firefox()
+        staging_server = os.environ.get("STAGING_SERVER")
+        if staging_server:
+            self.live_server_url = "http://" + staging_server
+
         get_user_model().objects.create_user(
             "edith", "edith@somewhere.net", "edithpassword"
         )
