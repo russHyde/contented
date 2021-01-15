@@ -5,7 +5,10 @@ This django app uses pipenv and a server-localised .env file for defining the
 python environment and any environment variables.
 
 Call this using
+
+cd deploy_tools
 fab deploy:host=<username>@<url>
+
 ... where
     - url is the name of the website (eg, cml-stem-cell.russlearnsweb.co.uk)
     - and username is your username on the server that hosts that website
