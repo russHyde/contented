@@ -62,10 +62,12 @@ class ProjectVisibilityTest(StaticLiveServerTestCase):
 
         # She sees there is a list of URLs: for documents, figures and
         # processed data
+        expected_files = [
+            "README.md", "abc.csv", "report.pdf", "my_subfolder/def.tsv"
+        ]
         results_table = self.browser.find_element(By.ID, "results_table")
-        self.assert_in_table(results_table, "README.md")
-        self.assert_in_table(results_table, "abc.csv")
-        self.assert_in_table(results_table, "my_subfolder/def.tsv")
+        for fname in expected_files:
+            self.assert_in_table(results_table, fname)
 
     def test_can_open_a_data_analysis_notebook(self):
         """
