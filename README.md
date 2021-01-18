@@ -4,9 +4,18 @@ This is a django project for delivery of data-analysis results (notebooks,
 tables etc) in a user-authorised way: Only those users with access to a given
 project should be able to view it's deliverables.
 
-To use `contented`: fork the repository, add your analysis deliverables to the
-`projects` subdirectory and then pull the modified repository onto a web-server
-(details follow).
+To use `contented`:
+
+- obtain a webserver, register a website domain and point the website URL to
+  the webserver;
+- put your analysis deliverables in a directory on the webserver;
+- follow the provisioning notes in `./deploy_tools/provisioning_notes.md` (eg,
+  install python / nginx etc on the webserver)
+- run the fabric script in `./deploy_tools` - this will clone the contented
+  repository onto the webserver, install the python env / update the database
+  etc
+- then add the filepath for your analysis deliverables to the `PROJECTS_DIR`
+  environment variable defined in `./.env`
 
 ## ENV
 
@@ -21,11 +30,12 @@ Environment is managed by `pipenv`
 
 ## CONFIG
 
-A directory is specified by the user (in `config/settings.py`) that contains
-all projects that should be made visible: `PROJECTS_DIR`. The default value of
-`PROJECTS_DIR` points to a set of projects that are used during testing.
+A directory is specified by the superuser (as the `PROJECTS_DIR` environment
+var on the webserver; to do this modify the value in `.env`) that contains all
+projects that should be made visible: `PROJECTS_DIR`.
 
-PLAN: make `PROJECTS_DIR` configurable using environment variables
+The default value of `PROJECTS_DIR` points to a set of projects that are used
+during testing.
 
 ## Tests
 
