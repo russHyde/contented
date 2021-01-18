@@ -50,9 +50,8 @@ class ProjectVisibilityTest(StaticLiveServerTestCase):
 
         # She notices there is a list of data analysis projects to look at
         table = self.browser.find_element(By.ID, "project_table")
-        rows = table.find_elements(By.TAG_NAME, "tr")
-        self.assertIn("my_test_project", [row.text for row in rows])
-        self.assertIn("my_other_project", [row.text for row in rows])
+        self.assert_in_table(table, "my_test_project")
+        self.assert_in_table(table, "my_other_project")
 
         # She enters the web-page for a particular analysis project and sees
         # the name of the project in the title
@@ -65,10 +64,9 @@ class ProjectVisibilityTest(StaticLiveServerTestCase):
         # She sees there is a list of URLs: for documents, figures and
         # processed data
         results_table = self.browser.find_element(By.ID, "results_table")
-        results_rows = results_table.find_elements(By.TAG_NAME, "tr")
-        self.assertIn("README.md", [row.text for row in results_rows])
-        self.assertIn("abc.csv", [row.text for row in results_rows])
-        self.assertIn("my_subfolder/def.tsv", [row.text for row in results_rows])
+        self.assert_in_table(results_table, "README.md")
+        self.assert_in_table(results_table, "abc.csv")
+        self.assert_in_table(results_table, "my_subfolder/def.tsv")
 
         # She opens the webpage for an analysis report
         result_abc_link = self.browser.find_element(By.LINK_TEXT, "abc.csv")
@@ -92,8 +90,7 @@ class ProjectVisibilityTest(StaticLiveServerTestCase):
 
         # He notes that the classified project is not visible at the moment
         table = self.browser.find_element(By.ID, "project_table")
-        rows = table.find_elements(By.TAG_NAME, "tr")
-        self.assertNotIn(restricted_project, [row.text for row in rows])
+        self.assert_not_in_table(table, restricted_project)
 
         #         # He opens the URL for logging in to the site
         #         self.browser.get(self.live_server_url + "/accounts/login/")
@@ -108,8 +105,7 @@ class ProjectVisibilityTest(StaticLiveServerTestCase):
         #         # After being redirected to the home page, he notes that the classified
         #         # project is not visible
         #         table = self.browser.find_element(By.ID, "project_table")
-        #         rows = table.find_elements(By.TAG_NAME, "tr")
-        #         self.assertNotIn(restricted_project, [row.text for row in rows])
+        #         self.assert_not_in_table(table, restricted_project)
 
         # He logs into the site with the correct password
         self.browser.get(self.live_server_url + "/accounts/login/")
@@ -122,8 +118,7 @@ class ProjectVisibilityTest(StaticLiveServerTestCase):
         # After being redirected to the home-page, he notices the classified
         # project is visible
         table = self.browser.find_element(By.ID, "project_table")
-        rows = table.find_elements(By.TAG_NAME, "tr")
-        self.assertIn(restricted_project, [row.text for row in rows])
+        self.assert_in_table(table, restricted_project)
 
         # He opens the project he wanted to view and stores it's URL for later
         # use
@@ -138,8 +133,7 @@ class ProjectVisibilityTest(StaticLiveServerTestCase):
         # Once again, the restricted project is no-longer visible in the
         # projects table
         table = self.browser.find_element(By.ID, "project_table")
-        rows = table.find_elements(By.TAG_NAME, "tr")
-        self.assertNotIn(restricted_project, [row.text for row in rows])
+        self.assert_not_in_table(table, restricted_project)
 
         # He wonders whether he could access the project with it's URL if he
         # isn't logged in
@@ -153,3 +147,21 @@ class ProjectVisibilityTest(StaticLiveServerTestCase):
 
         # Satisfied that people have to be logged in to access the report he
         # goes back to sleep
+
+    # Helper methods
+
+    def assert_in_table(self, table, text):
+        """
+        Check that at least one of the "tr" table rows in a html table contains
+        the given text
+        """
+        rows = table.find_elements(By.TAG_NAME, "tr")
+        self.assertIn(text, [row.text for row in rows])
+
+    def assert_not_in_table(self, table, text):
+        """
+        Check that none of the "tr" table rows in a html table contain the
+        given text
+        """
+        rows = table.find_elements(By.TAG_NAME, "tr")
+        self.assertNotIn(text, [row.text for row in rows])
