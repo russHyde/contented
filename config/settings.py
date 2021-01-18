@@ -128,13 +128,14 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 # The set of projects, for which results should be released, are assumed to be
 # present in this directory
 
-PROJECTS_DIR = Path(
-    os.getenv("PROJECTS_DIR", "dummy_projects")
-)
+PROJECTS_DIR = Path(os.getenv("PROJECTS_DIR", "dummy_projects"))
 
-# The set of projects that are restricted are defined here:
+# The set of projects that are access-restricted
+# - are defined by the comma-separated env variable "RESTRICTED_PROJECTS";
+# - if that var is missing or an empty string, all projects are
+# assumed to be publicly accessible:
 
-RESTRICTED_PROJECTS = []
+RESTRICTED_PROJECTS = [x for x in os.getenv("RESTRICTED_PROJECTS", "").split(",") if x]
 
 # Move the user to the homepage on login/logout
 
