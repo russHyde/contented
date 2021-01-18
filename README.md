@@ -11,7 +11,7 @@ To use `contented`:
 - put your analysis deliverables in a directory on the webserver;
 - follow the provisioning notes in `./deploy_tools/provisioning_notes.md` (eg,
   install python / nginx etc on the webserver)
-- run the fabric script in `./deploy_tools` - this will clone the contented
+- run the fabric script in `./deploy_tools` - this will clone the `contented`
   repository onto the webserver, install the python env / update the database
   etc
 - then add the filepath for your analysis deliverables to the `PROJECTS_DIR`
@@ -54,7 +54,7 @@ Use Django test client to check that which templates are used in response to a
 http request, eg, `self.client.get("/")`
 
 Note you can use `@override_settings` decorator, if you want to change the
-project data that is presented by contented during tests (plan is to use env
+project data that is presented by `contented` during tests (plan is to use env
 variable to define the location of the data that is presented; this env var
 will be parsed by settings.py)
 
