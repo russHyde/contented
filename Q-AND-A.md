@@ -392,3 +392,19 @@ sudo systemctl daemon-reload
 sudo systemctl enable gunicorn-${SITENAME}
 sudo systemctl start gunicorn-${SITENAME}
 ```
+
+## Why does trying to open a .pdf fail with server error 500 after adding code
+to handle FileResponse(open("pdf-file", "rb"))
+
+Not sure why this was the case.
+
+Each time I tried modifying the config, or code on the server to work out why
+the pdf was not being served I just kept getting the same server-error 500.
+
+That happened even if I hard-coded a HttpResponse("hello world") as the return
+value for displaying a requested pdf.
+
+Turned out that I had to restart gunicorn: changing the code is not enough for
+the site to be updated. So make sure you rerun `sudo systemctl restart
+gunicorn-<my-site>.service` if, after pulling new code onto the server, the
+features you have added are not implemented on the website.
