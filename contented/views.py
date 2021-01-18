@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 from django.conf import settings
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import FileResponse, HttpResponse, HttpResponseRedirect
 
 
 def home_page(request):
@@ -54,6 +54,10 @@ def results_page(request, project_id, file_name):
 
     project_collection = settings.PROJECTS_DIR
     file_path = project_collection / project_id / file_name
+
+    if file_name.endswith("pdf"):
+        return FileResponse(open(file_path, "rb"))
+
     file_contents = ""
     with open(file_path, "r") as file_object:
         file_contents = file_object.read()
