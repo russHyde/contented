@@ -34,10 +34,9 @@ class ProjectVisibilityTest(StaticLiveServerTestCase):
     def tearDown(self):
         self.browser.quit()
 
-    def test_can_open_a_data_analysis_notebook(self):
+    def test_can_navigate_website(self):
         """
         A user should be able to navigate to a project they are interested in
-        and open an analysis notebook / results file in the browser
         """
         # Edith has heard about a cool new app that shows the results of data
         # analysis projects. She goes to check out its homepage.
@@ -67,6 +66,20 @@ class ProjectVisibilityTest(StaticLiveServerTestCase):
         self.assert_in_table(results_table, "README.md")
         self.assert_in_table(results_table, "abc.csv")
         self.assert_in_table(results_table, "my_subfolder/def.tsv")
+
+    def test_can_open_a_data_analysis_notebook(self):
+        """
+        A user should be able to open an analysis notebook / results file in
+        the browser
+        """
+        # Edith has heard about a cool new app that shows the results of data
+        # analysis projects. She goes to check out its homepage.
+        self.browser.get(self.live_server_url)
+
+        # She enters the web-page for a particular analysis project and sees
+        # the name of the project in the title
+        project_link = self.browser.find_element(By.LINK_TEXT, "my_test_project")
+        project_link.click()
 
         # She opens the webpage for an analysis report
         result_abc_link = self.browser.find_element(By.LINK_TEXT, "abc.csv")
