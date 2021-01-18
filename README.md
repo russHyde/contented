@@ -14,8 +14,8 @@ To use `contented`:
 - run the fabric script in `./deploy_tools` - this will clone the `contented`
   repository onto the webserver, install the python env / update the database
   etc
-- then add the filepath for your analysis deliverables to the `PROJECTS_DIR`
-  environment variable defined in `./.env`
+- then configure the files that users can see by modifying the `./.env` file,
+  as described in the 'CONFIG' section below
 
 ## ENV
 
@@ -30,12 +30,24 @@ Environment is managed by `pipenv`
 
 ## CONFIG
 
-A directory is specified by the superuser (as the `PROJECTS_DIR` environment
-var on the webserver; to do this modify the value in `.env`) that contains all
-projects that should be made visible: `PROJECTS_DIR`.
+The file `./.env` is used to configure each deployment of `contented`.
 
-The default value of `PROJECTS_DIR` points to a set of projects that are used
-during testing.
+Each line of this file defines an environment variable used while `contented`
+runs.
+
+A template .env file can be found in `./deploy_tools/template.env`
+
+The config variables are:
+
+- `PROJECTS_DIR`: A directory that contains all projects that should be made
+  visible on the website. The default value points to a set of projects that
+  are used during testing.
+
+- `RESTRICTED_PROJECTS`: Access to a subset of the projects in `PROJECTS_DIR`
+  may be restricted (users must be logged in to view them) by adding their
+  names to this comma-separated string. The default is for all projects to be
+  publicly accessible (this occurs when `RESTRICTED_PROJECTS` is missing or the
+  empty string).
 
 ## Tests
 
