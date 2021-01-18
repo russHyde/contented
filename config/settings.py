@@ -128,7 +128,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 # The set of projects, for which results should be released, are assumed to be
 # present in this directory
 
-PROJECTS_DIR = Path("dummy_projects")
+PROJECTS_DIR = Path(
+    os.getenv("PROJECTS_DIR", "dummy_projects")
+)
 
 # The set of projects that are restricted are defined here:
 
