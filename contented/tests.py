@@ -392,10 +392,15 @@ class ResultsPageTest(TestCase):
             url = f"/projects/{project_id}/{file_name}"
 
             file_text = ""
-            with open(file_path, mode="r") as file_object:
+            file_mode = "rb" if file_name.endswith("pdf") else "r"
+            with open(file_path, mode=file_mode) as file_object:
                 file_text = file_object.read()
+
             response = self.client.get(url)
-            response_text = response.content.decode("utf8")
+            if file_name.endswith("pdf"):
+                response_text = b"".join(response.streaming_content)
+            else:
+                response_text = response.content.decode("utf8")
 
             self.assertEqual(response_text, file_text)
 
