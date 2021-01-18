@@ -83,10 +83,16 @@ class ProjectVisibilityTest(StaticLiveServerTestCase):
         project_link = self.browser.find_element(By.LINK_TEXT, "my_test_project")
         project_link.click()
 
-        # She opens the webpage for an analysis report
+        # She opens the webpage for a plain-text analysis report
         result_abc_link = self.browser.find_element(By.LINK_TEXT, "abc.csv")
         result_abc_link.click()
         self.assertIn("abc,123,345", self.browser.page_source)
+
+        # She opens the webpage for a binary (.pdf) analysis report
+        self.browser.back()
+        result_pdf_link = self.browser.find_element(By.LINK_TEXT, "report.pdf")
+        result_pdf_link.click()
+        # should not throw error
 
         # Satisfied she goes back to sleep
 
