@@ -426,22 +426,38 @@ class ResultsPageTest(TestCase):
         identical to the original contents.
         """
 
+        def is_binary(file_name):
+            _, extension = os.path.splitext(file_name)
+            binary_extensions = {".pdf", ".svg", ".png", ".jpeg"}
+
+            return extension in binary_extensions
+
+        def get_file_contents(file_path):
+            file_text = ""
+            file_mode = "rb" if is_binary(file_path) else "r"
+            with open(file_path, mode=file_mode) as file_object:
+                file_text = file_object.read()
+
+            return file_text
+
+        def get_response_contents(response, binary):
+            if binary:
+                return b"".join(response.streaming_content)
+
+            return response.content.decode("utf8")
+
         def does_file_match_browser_contents(path, project_id, file_name):
             file_path = path / project_id / file_name
             url = f"/projects/{project_id}/{file_name}"
 
-            file_text = ""
-            file_mode = "rb" if file_name.endswith("pdf") else "r"
-            with open(file_path, mode=file_mode) as file_object:
-                file_text = file_object.read()
+            file_text = get_file_contents(file_path)
 
             response = self.client.get(url)
-            if file_name.endswith("pdf"):
-                response_text = b"".join(response.streaming_content)
-            else:
-                response_text = response.content.decode("utf8")
+            response_contents = get_response_contents(
+                response, binary=is_binary(file_path)
+            )
 
-            self.assertEqual(response_text, file_text)
+            self.assertEqual(response_contents, file_text)
 
         def do_all_files_match_their_browser_rendering(details):
             for project_id, files in details["file_paths"].items():
