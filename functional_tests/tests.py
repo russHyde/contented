@@ -63,7 +63,11 @@ class ProjectVisibilityTest(StaticLiveServerTestCase):
         # She sees there is a list of URLs: for documents, figures and
         # processed data
         expected_files = [
-            "README.md", "abc.csv", "report.pdf", "my_subfolder/def.tsv"
+            "README.md",
+            "abc.csv",
+            "notes.html",
+            "report.pdf",
+            "my_subfolder/def.tsv",
         ]
         results_table = self.browser.find_element(By.ID, "results_table")
         for fname in expected_files:
@@ -93,6 +97,10 @@ class ProjectVisibilityTest(StaticLiveServerTestCase):
         result_pdf_link = self.browser.find_element(By.LINK_TEXT, "report.pdf")
         result_pdf_link.click()
         # should not throw error
+
+        ## Would have liked to test that .html and image files open
+        ## appropriately in the browser, but there doesn't seem to be an easy
+        ## way to do that in selenium
 
         # Satisfied she goes back to sleep
 

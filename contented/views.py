@@ -10,6 +10,9 @@ from django.shortcuts import render
 from django.http import FileResponse, HttpResponse, HttpResponseRedirect
 
 
+BINARY_EXTENSIONS = {".pdf", ".jpeg", ".png", ".svg"}
+
+
 def home_page(request):
     """
     Home page displays a list of projects
@@ -55,14 +58,16 @@ def results_page(request, project_id, file_name):
     project_collection = settings.PROJECTS_DIR
     file_path = project_collection / project_id / file_name
 
-    if file_name.endswith("pdf"):
+    _, file_extension = os.path.splitext(file_name)
+    if file_extension in BINARY_EXTENSIONS:
         return FileResponse(open(file_path, "rb"))
 
+    content_type = "text/html" if file_extension == ".html" else "text/plain"
     file_contents = ""
     with open(file_path, "r") as file_object:
         file_contents = file_object.read()
 
-    return HttpResponse(file_contents, content_type="text/plain")
+    return HttpResponse(file_contents, content_type=content_type)
 
 
 # Helpers
