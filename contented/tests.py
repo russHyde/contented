@@ -376,6 +376,45 @@ class ResultsPageTest(TestCase):
             with self.settings(PROJECTS_DIR=details["path"]):
                 do_all_results_pages_open(details)
 
+    def test_results_page_matches_expected_content_type(self):
+        """
+        GIVEN: a file `<projects_dir>/<project_id>/<some_file>` exists
+
+        WHEN: the user requests to see the URL corresponding to that file
+        (/projects/<project_id>/<some_file>)
+
+        THEN: the content-type for the response should make sense for the
+        original file (if it's a pdf, html, txt ... file then the content-type
+        should be application/pdf, text/html, text/plain)
+        """
+        # Take the default content-type to be text/plain
+        content_types = {
+            ".pdf": "application/pdf",
+            ".html": "text/html",
+            ".jpeg": "image/jpeg",
+            ".png": "image/png",
+            ".svg": "image/svg+xml",
+        }
+
+        def does_results_page_have_correct_content_type(project_id, file_name):
+            _, extension = os.path.splitext(file_name)
+
+            url = f"/projects/{project_id}/{file_name}"
+            response = self.client.get(url)
+
+            self.assertEqual(
+                response["content-type"], content_types.get(extension, "text/plain")
+            )
+
+        def do_all_results_pages_have_correct_content_type(details):
+            for project_id, files in details["file_paths"].items():
+                for file_name in files:
+                    does_results_page_have_correct_content_type(project_id, file_name)
+
+        for _, details in self.project_collections.items():
+            with self.settings(PROJECTS_DIR=details["path"]):
+                do_all_results_pages_have_correct_content_type(details)
+
     def test_results_page_content_matches_file_content(self):
         """
         GIVEN: a file `<projects_dir>/<project_id>/<some_file>` exists
