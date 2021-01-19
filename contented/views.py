@@ -10,9 +10,8 @@ from django.shortcuts import render
 from django.http import FileResponse, HttpResponse, HttpResponseRedirect
 
 
-BINARY_EXTENSIONS = {
-    ".pdf", ".jpeg", ".png", ".svg"
-}
+BINARY_EXTENSIONS = {".pdf", ".jpeg", ".png", ".svg"}
+
 
 def home_page(request):
     """
