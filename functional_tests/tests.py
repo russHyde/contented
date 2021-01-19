@@ -63,7 +63,11 @@ class ProjectVisibilityTest(StaticLiveServerTestCase):
         # She sees there is a list of URLs: for documents, figures and
         # processed data
         expected_files = [
-            "README.md", "abc.csv", "report.pdf", "my_subfolder/def.tsv"
+            "README.md",
+            "abc.csv",
+            "notes.html",
+            "report.pdf",
+            "my_subfolder/def.tsv",
         ]
         results_table = self.browser.find_element(By.ID, "results_table")
         for fname in expected_files:
