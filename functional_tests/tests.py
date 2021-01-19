@@ -98,6 +98,10 @@ class ProjectVisibilityTest(StaticLiveServerTestCase):
         result_pdf_link.click()
         # should not throw error
 
+        ## Would have liked to test that .html and image files open
+        ## appropriately in the browser, but there doesn't seem to be an easy
+        ## way to do that in selenium
+
         # Satisfied she goes back to sleep
 
     @override_settings(RESTRICTED_PROJECTS=["my_other_project"])
