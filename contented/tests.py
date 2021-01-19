@@ -239,7 +239,7 @@ class ProjectPageTest(TestCase):
         project-page (not tested: in a table)
         """
 
-        def does_project_page_text_contain_file(project_id, file_path):
+        def assert_project_page_text_contains_file(project_id, file_path):
             # GIVEN: a project name, and one of the results files that are
             # stored in the project's directory
 
@@ -250,14 +250,14 @@ class ProjectPageTest(TestCase):
             # THEN: the results-file should be mentioned on the project-page
             self.assertIn(file_path, response_text)
 
-        def does_project_page_contain_list_of_all_results_files(details):
+        def assert_project_page_contains_list_of_all_results_files(details):
             for project_id, files in details["file_paths"].items():
                 for file_path in files:
-                    does_project_page_text_contain_file(project_id, file_path)
+                    assert_project_page_text_contains_file(project_id, file_path)
 
         for _, details in self.project_collections.items():
             with self.settings(PROJECTS_DIR=details["path"]):
-                does_project_page_contain_list_of_all_results_files(details)
+                assert_project_page_contains_list_of_all_results_files(details)
 
     def test_project_page_contains_hyperlinks_to_results(self):
         """
@@ -270,7 +270,7 @@ class ProjectPageTest(TestCase):
         project-page
         """
 
-        def does_project_page_contain_hyperlink_to_file(project_id, file_path):
+        def assert_project_page_contains_hyperlink_to_file(project_id, file_path):
             hyperlink_stub = """<a href="/projects/{proj}/{file}">{file}</a>"""
             response = self.client.get(f"/projects/{project_id}")
             self.assertContains(
@@ -279,14 +279,16 @@ class ProjectPageTest(TestCase):
                 html=True,
             )
 
-        def does_project_page_contain_hyperlinks_to_all_results_files(details):
+        def assert_project_page_contains_hyperlinks_to_all_results_files(details):
             for project_id, files in details["file_paths"].items():
                 for file_path in files:
-                    does_project_page_contain_hyperlink_to_file(project_id, file_path)
+                    assert_project_page_contains_hyperlink_to_file(
+                        project_id, file_path
+                    )
 
         for _, details in self.project_collections.items():
             with self.settings(PROJECTS_DIR=details["path"]):
-                does_project_page_contain_hyperlinks_to_all_results_files(details)
+                assert_project_page_contains_hyperlinks_to_all_results_files(details)
 
     # def test_nonexisting_projects_throw_404(self):
     #    response = self.client.get(f"/projects/not-a-project")
@@ -361,20 +363,20 @@ class ResultsPageTest(TestCase):
         THEN: the file should open in the browser
         """
 
-        def does_results_page_open(project_id, file_name):
+        def assert_results_page_opens(project_id, file_name):
             url = f"/projects/{project_id}/{file_name}"
             response = self.client.get(url)
 
             self.assertEqual(response.status_code, 200, f"Couldn't open {url}")
 
-        def do_all_results_pages_open(details):
+        def assert_all_results_pages_open(details):
             for project_id, files in details["file_paths"].items():
                 for file_name in files:
-                    does_results_page_open(project_id, file_name)
+                    assert_results_page_opens(project_id, file_name)
 
         for _, details in self.project_collections.items():
             with self.settings(PROJECTS_DIR=details["path"]):
-                do_all_results_pages_open(details)
+                assert_all_results_pages_open(details)
 
     def test_results_page_matches_expected_content_type(self):
         """
@@ -396,7 +398,7 @@ class ResultsPageTest(TestCase):
             ".svg": "image/svg+xml",
         }
 
-        def does_results_page_have_correct_content_type(project_id, file_name):
+        def assert_results_page_has_correct_content_type(project_id, file_name):
             _, extension = os.path.splitext(file_name)
 
             url = f"/projects/{project_id}/{file_name}"
@@ -406,14 +408,14 @@ class ResultsPageTest(TestCase):
                 response["content-type"], content_types.get(extension, "text/plain")
             )
 
-        def do_all_results_pages_have_correct_content_type(details):
+        def assert_all_results_pages_have_correct_content_type(details):
             for project_id, files in details["file_paths"].items():
                 for file_name in files:
-                    does_results_page_have_correct_content_type(project_id, file_name)
+                    assert_results_page_has_correct_content_type(project_id, file_name)
 
         for _, details in self.project_collections.items():
             with self.settings(PROJECTS_DIR=details["path"]):
-                do_all_results_pages_have_correct_content_type(details)
+                assert_all_results_pages_have_correct_content_type(details)
 
     def test_results_page_content_matches_file_content(self):
         """
@@ -446,7 +448,7 @@ class ResultsPageTest(TestCase):
 
             return response.content.decode("utf8")
 
-        def does_file_match_browser_contents(path, project_id, file_name):
+        def assert_file_matches_browser_contents(path, project_id, file_name):
             file_path = path / project_id / file_name
             url = f"/projects/{project_id}/{file_name}"
 
@@ -459,16 +461,16 @@ class ResultsPageTest(TestCase):
 
             self.assertEqual(response_contents, file_text)
 
-        def do_all_files_match_their_browser_rendering(details):
+        def assert_all_files_match_their_browser_rendering(details):
             for project_id, files in details["file_paths"].items():
                 for file_name in files:
-                    does_file_match_browser_contents(
+                    assert_file_matches_browser_contents(
                         path=details["path"], project_id=project_id, file_name=file_name
                     )
 
         for _, details in self.project_collections.items():
             with self.settings(PROJECTS_DIR=details["path"]):
-                do_all_files_match_their_browser_rendering(details)
+                assert_all_files_match_their_browser_rendering(details)
 
     @override_settings(
         PROJECTS_DIR=Path("dummy_projects"),
