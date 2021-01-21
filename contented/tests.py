@@ -119,17 +119,6 @@ class HomePageTest(TestCase):
                         response, hyperlink_stub.format(proj=project_id), html=True
                     )
 
-    def test_home_page_banner_contains_hyperlink_to_home_page(self):
-        """
-        WHEN: the user opens the home-page (and any page that uses it's banner)
-        THEN: they can click on a hyperlink to get to the homepage
-        """
-        response = self.client.get(reverse("home"))
-        self.assertContains(
-            response, """<a href="/">Home</a>"""
-        )
-
-
 @override_settings(
     PROJECTS_DIR=Path("dummy_projects"),
     RESTRICTED_PROJECTS=["my_other_project"],
