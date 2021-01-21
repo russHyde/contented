@@ -34,7 +34,7 @@ class ProjectVisibilityTest(StaticLiveServerTestCase):
     def tearDown(self):
         self.browser.quit()
 
-    def test_can_navigate_website(self):
+    def test_can_navigate_to_project(self):
         """
         A user should be able to navigate to a project they are interested in
         """
