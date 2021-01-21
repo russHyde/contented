@@ -119,7 +119,6 @@ class HomePageTest(TestCase):
                         response, hyperlink_stub.format(proj=project_id), html=True
                     )
 
-
 @override_settings(
     PROJECTS_DIR=Path("dummy_projects"),
     RESTRICTED_PROJECTS=["my_other_project"],

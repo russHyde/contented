@@ -34,18 +34,38 @@ class ProjectVisibilityTest(StaticLiveServerTestCase):
     def tearDown(self):
         self.browser.quit()
 
-    def test_can_navigate_website(self):
+    def test_navigation_bar_links_work(self):
+        """
+        User can get to login and home-page from the navigation bar
+        """
+        home_page_title = "Data Analysis Results"
+
+        # Mike opens the home page for his project-collection
+        self.browser.get(self.live_server_url)
+
+        # He notices the page title and header mention data-analysis projects
+        self.assertIn(home_page_title, self.browser.title)
+        header_text = self.browser.find_element(By.TAG_NAME, "h1").text
+        self.assertIn(home_page_title, header_text)
+
+        # He notices a login link and clicks on it
+        login_link = self.browser.find_element(By.LINK_TEXT, "Log In")
+        login_link.click()
+        self.assertIn("Log In", self.browser.page_source)
+
+        # Then decides to go back to the home page by clicking on the home-page
+        # link
+        home_page_link = self.browser.find_element(By.LINK_TEXT, "Home")
+        home_page_link.click()
+        self.assertIn(home_page_title, self.browser.title)
+
+    def test_can_navigate_to_project(self):
         """
         A user should be able to navigate to a project they are interested in
         """
         # Edith has heard about a cool new app that shows the results of data
         # analysis projects. She goes to check out its homepage.
         self.browser.get(self.live_server_url)
-
-        # She notices the page title and header mention data analysis projects
-        self.assertIn("Data Analysis Results", self.browser.title)
-        header_text = self.browser.find_element(By.TAG_NAME, "h1").text
-        self.assertIn("Data Analysis Results", header_text)
 
         # She notices there is a list of data analysis projects to look at
         table = self.browser.find_element(By.ID, "project_table")
